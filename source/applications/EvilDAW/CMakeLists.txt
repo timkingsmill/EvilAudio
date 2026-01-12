@@ -93,10 +93,10 @@ target_link_libraries(EvilDAW
 )   
 
 # Retrieve the sources into a variable named 'target_sources_list'
-get_target_property(target_sources_list EvilDAW SOURCES)
-message(STATUS "--------------------------------")
-message(STATUS "Sources for EvilDAW: ${target_sources_list}")
-message(STATUS "--------------------------------")
+#get_target_property(target_sources_list EvilDAW SOURCES)
+#message(STATUS "--------------------------------")
+#message(STATUS "Sources for EvilDAW: ${target_sources_list}")
+#message(STATUS "--------------------------------")
 
 
 # -----------------------------------------------------------------------------------------------
