@@ -4,6 +4,7 @@
 set(CMAKE_FOLDER EvilAudio/applications/EvilPluginHost)
 
 project(EvilPluginHost VERSION 0.1.0 LANGUAGES C CXX)   
+
 juce_add_gui_app(EvilPluginHost
     PRODUCT_NAME "EvilPluginHost"   
     VERSION ${PROJECT_VERSION}
@@ -62,7 +63,7 @@ target_link_libraries(EvilPluginHost
 
 target_link_libraries(EvilPluginHost
     PRIVATE 
-        #juce::juce_audio_utils 
+        juce::juce_audio_utils 
         #juce::juce_audio_devices
         #juce::juce_audio_basics 
         #juce::juce_audio_plugin_client
@@ -71,34 +72,7 @@ target_link_libraries(EvilPluginHost
         #juce::juce_gui_extra 
 )
 
-message(STATUS "---------------------------------------------------------------")
-
-get_target_property(linked_libraries EvilPluginHost LINK_LIBRARIES)
-foreach(lib ${linked_libraries})
-    ###message(STATUS "EvilPluginHost linked library: ${lib}")
-    if(TARGET ${lib})
-        get_target_property(deps ${lib} INTERFACE_SOURCES)
-        message(STATUS "EvilPluginHost linked library: ${lib}")
-        if(NOT deps STREQUAL "deps-NOTFOUND")
-            message(STATUS "  with dependencies: ${deps}")
-        endif()
-    endif()
-endforeach()
-
-message(STATUS "---------------------------------------------------------------")
-
-#[[
-message(STATUS "---------------------------------------------------------------")
-get_target_property(linked_libs EvilPluginHost LINK_LIBRARIES)
-
-foreach(lib ${linked_libs})
-    if(TARGET ${lib})
-        get_target_property(SRCS ${lib} SOURCES)
-        get_target_property(INT_SRCS ${lib} INTERFACE_SOURCES)
-        message(STATUS "Library ${lib} has sources: ${SRCS} ${INT_SRCS}")
-    endif()
-endforeach()
-message(STATUS "Sources for evilaudio_core: ${LINKED_LIBS}")
-]]#
+target_add_module_source_groups(EvilPluginHost juce)
+target_add_module_source_groups(EvilPluginHost evilaudio)
 
 # =================================================================================================

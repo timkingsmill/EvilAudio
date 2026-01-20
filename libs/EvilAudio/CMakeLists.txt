@@ -1,0 +1,3 @@
+add_subdirectory(EvilStaticLibrary)
+
+add_juce_module_static_library(juce::juce_core)

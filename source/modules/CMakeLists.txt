@@ -1,12 +1,6 @@
 set(CMAKE_FOLDER modules)
 
-set(cmake_juce_utils "${JUCE_DIR}/JUCEUtils.cmake")
-
-if(NOT EXISTS "${cmake_juce_utils}")
-    message(FATAL_ERROR "Could not locate juce cmake utilities file: '${cmake_juce_utils}'")
-endif()
-message(STATUS "CMake Juce Utilities File: ${cmake_juce_utils}")
-include("${cmake_juce_utils}")
+option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Enable Module Source Groups" OFF)
 
 juce_add_modules(
     ALIAS_NAMESPACE evilaudio

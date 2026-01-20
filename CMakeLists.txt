@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 4.2.0)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Enable Module Source Groups" ON)
+
 # Set C++23 as the default for all targets
 set(CMAKE_CXX_STANDARD 23)
 # Ensure the compiler supports the specified standard
@@ -22,6 +24,8 @@ set(CMAKE_PREFIX_PATH "/source/EvilAudio/libs/JUCE/install")
 #)
 
 find_package(JUCE CONFIG REQUIRED)  
+
+include(cmake/EvilAudioUtils.cmake)
 
 #include(extras/build/CMake/EvilAudioUtils.cmake)
 #include(external/extras/build/CMake/CMakeUtils.cmake)
@@ -45,6 +49,7 @@ endif()
 
 # -----------------------------------------------------------------------------------------------
 
+add_subdirectory(libs)
 add_subdirectory(source)
 
 # -----------------------------------------------------------------------------------------------
