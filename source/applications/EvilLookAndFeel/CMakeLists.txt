@@ -4,6 +4,7 @@
 set(CMAKE_FOLDER EvilAudio/applications/EvilLookAndFeel)
 
 project(EvilLookAndFeel VERSION 0.1.0 LANGUAGES C CXX)
+
 juce_add_gui_app(EvilLookAndFeel
     PRODUCT_NAME "EvilLookAndFeel"
     VERSION ${PROJECT_VERSION}

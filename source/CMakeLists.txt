@@ -3,7 +3,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Set C++23 as the default for all targets
 set(CMAKE_CXX_STANDARD 23)
 
-project(EvilAudio)
+#project(EvilAudio)
 
 add_subdirectory(applications/EvilStaticLibraryClient)
 

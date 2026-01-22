@@ -36,7 +36,6 @@ Dependencies:
     Helper functions:
     - _strip_alias_prefix()
     - _get_juce_module_path()
-    - _get_juce_module_sources()
     - _add_static_library()
     - _add_standard_defs()
 
@@ -56,55 +55,49 @@ function (add_juce_module_static_library juce_module_name)
     _strip_alias_prefix(${juce_module_name} stripped_module_name)
     set(juce_module_name ${stripped_module_name})
 
-    _get_juce_module_path(${juce_module_name} source_module_path)
+    # Get the path to the JUCE module parent directory
+    _get_juce_module_path(${juce_module_name} module_parent_path)
     
     # Fail if the path to the module source directory does not exist
-    if(NOT EXISTS "${source_module_path}")
-        message(FATAL_ERROR " ${juce_module_name} source directory does not exist: ${source_module_path}")
+    if(NOT EXISTS "${module_parent_path}")
+        message(FATAL_ERROR " ${juce_module_name} source directory does not exist: ${module_parent_path}")
     endif()
-
-    message(STATUS "\tFound sources path for JUCE [${juce_module_name}] module : ${source_module_path}")
-    set(library_target_name "evil_${juce_module_name}")
-    message(STATUS "\tStatic Library Target Name: ${library_target_name}")
-
+    message(STATUS "\tFound parent directory for JUCE [${juce_module_name}] module : ${module_parent_path}")
     # Check that the module header file exists
     set(module_header_name "${juce_module_name}.h")
     
     # First check for .h extension, then .hpp
-    if(NOT EXISTS "${source_module_path}/${juce_module_name}/${module_header_name}")
+    if(NOT EXISTS "${module_parent_path}/${juce_module_name}/${module_header_name}")
         set(module_header_name "${module_header_name}pp")
     endif()
 
     # Fail if the module header file does not exist
-    if(NOT EXISTS "${source_module_path}/${juce_module_name}/${module_header_name}")
-        message(FATAL_ERROR "${juce_module_name} Module header does not exist: ${source_module_path}/${module_header_name}")
+    if(NOT EXISTS "${module_parent_path}/${juce_module_name}/${module_header_name}")
+        message(FATAL_ERROR "${juce_module_name} Module header does not exist: ${module_parent_path}/${module_header_name}")
     endif()
 
     # Found the module header
     message(STATUS "\tFound module header: ${module_header_name}")
 
-    # Get the module source and header files
-    _get_juce_module_sources("${source_module_path}/${juce_module_name}" module_sources module_headers)
-    
-    #[[
-    foreach(filename ${module_headers})
-        message(STATUS "Module header: ${filename}")
-    endforeach()
+    # Copy the source module souces and headers from the JUCE module
+    # to this static library target.
+    get_target_property(module_sources ${juce_module_name} INTERFACE_JUCE_MODULE_SOURCES)
     foreach(filename ${module_sources})
-        message(STATUS "Module source: ${filename}")
+        #message(STATUS "\t\tModule source: ${filename}")
     endforeach()
-    ]]
-    
-    set(all_module_sources)
-    list(APPEND all_module_sources ${module_sources})
+
+    get_target_property(module_headers ${juce_module_name} INTERFACE_JUCE_MODULE_HEADERS)
+    foreach(filename ${module_headers})
+        #message(STATUS "\t\tModule header: ${filename}")
+    endforeach()
 
     set(lib_target_name "evil_${juce_module_name}")
-    _add_static_library("${lib_target_name}" "${all_module_sources}")
+    _add_static_library("${lib_target_name}" "${module_sources}")
 
     set_target_properties(${lib_target_name} PROPERTIES
         INTERFACE_JUCE_MODULE_SOURCES   "${module_sources}"
         INTERFACE_JUCE_MODULE_HEADERS   "${module_headers}"
-        INTERFACE_JUCE_MODULE_PATH      "${source_module_path}"
+        INTERFACE_JUCE_MODULE_PATH      "${module_parent_path}"
     )
 
     #if(JUCE_ENABLE_MODULE_SOURCE_GROUPS)
@@ -130,6 +123,75 @@ function (add_juce_module_static_library juce_module_name)
         endif()
     endif()
 
+    # We also need to export the include directories for the modules
+    # Must be public to add the include path to both this library
+    # and its clients.
+    target_include_directories(
+        ${lib_target_name} 
+        PUBLIC ${module_parent_path})
+
+    target_compile_definitions(${lib_target_name} INTERFACE JUCE_MODULE_AVAILABLE_${module_name}=1)
+
+    # Handle module metadata ---------------------------------------
+
+    # Extract module metadata from the module header file
+    _extract_metadata_block(JUCE_MODULE_DECLARATION "${module_parent_path}/${juce_module_name}/${module_header_name}" metadata_dict)
+    if (TARGET ${metadata_dict})
+        message(STATUS "\tExtracted metadata for module: ${juce_module_name} as target: ${metadata_dict}")
+    endif()
+    # Populate the metadata dictionary
+    _evil_get_metadata("${metadata_dict}" minimumCppStandard module_cpp_standard)
+    # Set the C++ standard if specified in the module metadata
+    if(module_cpp_standard)
+        message(STATUS "\tSetting C++ standard to ${module_cpp_standard} for ${lib_target_name}")
+        target_compile_features(${lib_target_name} PUBLIC cxx_std_${module_cpp_standard})   
+    else()
+        target_compile_features(${lib_target_name} INTERFACE cxx_std_11)
+    endif()
+
+    #Handle platform-specific compile options and linking from module metadata
+    #if(FALSE)
+    #else
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
+            if(juce_module_name MATCHES "juce_gui_basics|juce_audio_processors|juce_core|juce_graphics")
+                message(STATUS "\tAdding /bigobj compile option to ${lib_target_name} to avoid C1128 errors")
+                target_compile_options(${lib_target_name} PUBLIC /bigobj)
+            endif()
+
+            # Link Windows-specific libraries from metadata extracted from the JUCE module header.
+            #_add_evil_link_libs_from_metadata("${lib_target_name}" "${metadata_dict}" windowsLibs)
+            _evil_link_libs_from_metadata("${juce_module_name}" "${metadata_dict}" windowsLibs)
+        endif()
+    endif()
+
+    # Handle module dependencies extracted from metadata.
+    #
+    _evil_get_metadata("${metadata_dict}" dependencies module_dependencies)
+    foreach(module IN LISTS module_dependencies)
+        # Get the static library target name for the dependency.
+        set(dependency_target "evil_${module}")
+        message(STATUS "\tLinking dependency target: ${dependency_target} to ${lib_target_name}")
+        target_link_libraries(${lib_target_name} PRIVATE ${dependency_target})
+    endforeach()
+
+    _evil_get_metadata("${metadata_dict}" searchpaths module_searchpaths)
+    if(NOT module_searchpaths STREQUAL "")
+        foreach(module_searchpath IN LISTS module_searchpaths)
+            target_include_directories(
+                ${lib_target_name}
+                INTERFACE "${module_parent_path}/${module_searchpath}")
+        endforeach()
+    endif()
+
+    _juce_add_module_staticlib_paths("${lib_target_name}" "${module_parent_path}")
+
+    #if(JUCE_ARG_ALIAS_NAMESPACE)
+    #    add_library(${JUCE_ARG_ALIAS_NAMESPACE}::${module_name} ALIAS ${module_name})
+    #endif()
+
+
+    #[[
     target_link_libraries(${lib_target_name}
         PRIVATE
             #juce::juce_core
@@ -140,6 +202,7 @@ function (add_juce_module_static_library juce_module_name)
             juce::juce_recommended_lto_flags
             juce::juce_recommended_warning_flags
     )
+            ]]
 
     # We're linking the modules privately, but we need to export
     # their compile flags
@@ -153,14 +216,6 @@ function (add_juce_module_static_library juce_module_name)
             $<TARGET_PROPERTY:${lib_target_name},COMPILE_DEFINITIONS>
     )
 
-    # We also need to export the include directories for the modules
-    # Must be public to add the include path to both this library
-    # and its clients.
-    target_include_directories(${lib_target_name}
-        PUBLIC
-            "${source_module_path}"
-    )
-
     message(STATUS "-------------------------------------------------------------------------")
 endfunction()
 
@@ -172,8 +227,11 @@ endfunction()
 # Private function to create a static library target with the given sources.
 #
 # ARGUMENTS:
-#   target  - The name of the static library target to create
-#   sources - List of source files to compile into the static library
+#   delim_str       - The delimiter string used to identify metadata blocks
+#                     (e.g., "JUCE_MODULE_DECLARATION")
+#   file_with_block - Path to the file containing the metadata block
+#   out_dict        - Variable name to store the resulting metadata dictionary
+#                     (an IMPORTED INTERFACE library target)
 #
 # DESCRIPTION:
 #   This is an internal helper function used to add a static library target
@@ -188,67 +246,96 @@ function(_add_static_library target sources)
 endfunction()
 
 #===============================================================================================
-#
-# _get_juce_module_sources
-# 
-# Internal function to extract and categorize source files from a JUCE module.
-#
-# Arguments:
-#   module_path (in)      - Path to the JUCE module directory
-#   built_sources (out)   - Variable name to store compiled source files
-#   other_sources (out)   - Variable name to store other source files (headers, etc.)
-#
-# Description:
-#   This function scans a JUCE module directory and separates source files into
-#   two categories: files that need to be compiled and other supporting files.
-#   Results are stored in the parent scope using the provided variable names.
-#
-# Example:
-#   _get_juce_module_sources("${JUCE_MODULES_PATH}/juce_core" CORE_SOURCES CORE_HEADERS)
-function (_get_juce_module_sources module_path built_sources other_sources)
-    message(STATUS "\tCollecting sources from the module's path: ${module_path}")
- 
-    get_filename_component(module_parent_path ${module_path} DIRECTORY)
-    get_filename_component(module_name ${module_path} NAME)
 
-    file(GLOB_RECURSE all_module_files
-        CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
-        RELATIVE "${module_parent_path}"
-        "${module_path}/*"
-    )
+#[[
+    Extracts metadata from a delimited block within a file and stores it as target properties.
+    
+    This function parses a file for a metadata block delimited by BEGIN_<delim_str> and 
+    END_<delim_str> markers. It extracts key-value pairs from the block and stores them
+    as INTERFACE properties on an internally-created IMPORTED INTERFACE library target.
+    
+    The metadata format expected is:
+    - Keys are alphanumeric identifiers followed by a colon
+    - Values are comma, space, or tab-separated and converted to semicolon-separated lists
+    - Multiple lines with the same key append to the same property
+    
+    @param delim_str    The delimiter string used in BEGIN_<delim_str> and END_<delim_str> markers
+    @param file_with_block    Path to the file containing the metadata block
+    @param out_dict    Output variable that receives the name of the created target dictionary
+    
+    @details
+    - Creates a random-named IMPORTED INTERFACE library to store metadata as target properties
+    - Properties are named INTERFACE_JUCE_<KEY> where <KEY> is extracted from the metadata
+    - Throws FATAL_ERROR if the specified file does not exist
+    - Skips leading whitespace in all pattern matching
+    
+    @example
+    _extract_metadata_block("METADATA" "myfile.h" dict_var)
+    # dict_var now contains target name with properties like INTERFACE_JUCE_VERSION, etc.
+#]]
+function(_extract_metadata_block delim_str file_with_block out_dict)
+    string(RANDOM LENGTH 16 random_string)
+    set(target_name "${random_string}_dict")
+    set(${out_dict} "${target_name}" PARENT_SCOPE)
+    add_library(${target_name} INTERFACE IMPORTED)
 
-    # Filter to only include .c, .cpp, .cc, .cxx, .s, .asm files at the top level of the module directory
-    set(module_cpp_files "${all_module_files}")
-    set(regex "^${module_name}/${module_name}[^/]*\\.(c|cc|cpp|cxx|s|asm)$")
-    #message(STATUS ${regex})
-    list(FILTER module_cpp_files INCLUDE REGEX "${regex}")
-    #foreach (source_file ${module_cpp_files})
-    #    message(STATUS "After filtering all module files: ${source_file}")
-    #endforeach()
-
-    set(module_files_to_build)
-    foreach(filename IN LISTS module_cpp_files)
-        #message(STATUS "module_cpp: ${filename}")
-        _should_build_source_file("${filename}" should_build_file)
-        if(should_build_file)
-            list(APPEND module_files_to_build "${filename}")
-        endif()
-    endforeach()
-
-    if(NOT "${module_files_to_build}" STREQUAL "")
-        list(REMOVE_ITEM headers ${module_files_to_build})
+    if(NOT EXISTS ${file_with_block})
+        message(FATAL_ERROR "Unable to find file ${file_with_block}")
+    else()
+        message(STATUS "\tExtracting metadata block ${delim_str} from file: ${file_with_block}")
     endif()
-  
-    # Now we need to make the paths relative to the module path
-    set(headers ${all_module_files})
-    set(output_path "${module_parent_path}")
-    foreach(source_list ITEMS module_files_to_build headers)
-        list(TRANSFORM ${source_list} PREPEND "${output_path}/")
+
+    # Read the file contents into a list of lines
+    file(STRINGS ${file_with_block} module_header_contents)
+
+    set(last_written_key)
+    set(append NO)
+
+    foreach(line IN LISTS module_header_contents)
+        if(NOT append)
+            if(line MATCHES "[\t ]*BEGIN_${delim_str}[\t ]*")
+                set(append YES)
+            endif()
+
+            continue()
+        endif()
+
+        if(append AND (line MATCHES "[\t ]*END_${delim_str}[\t ]*"))
+            break()
+        endif()
+
+        if(line MATCHES "^[\t ]*([a-zA-Z]+):")
+            set(last_written_key "${CMAKE_MATCH_1}")
+        endif()
+
+        string(REGEX REPLACE "^[\t ]*${last_written_key}:[\t ]*" "" line "${line}")
+        string(REGEX REPLACE "[\t ,]+" ";" line "${line}")
+        
+        # Skip empty lines
+        if (line STREQUAL "")
+            continue()
+        endif()
+
+        set(property_key "INTERFACE_JUCE_${last_written_key}")
+        message(STATUS "\t\tExtracted metadata: ${property_key} = ${line}")
+        set_property(
+            TARGET ${target_name} 
+            APPEND PROPERTY
+                "${property_key}" "${line}"
+        )
     endforeach()
+endfunction()
 
-    set(${built_sources} ${module_files_to_build} PARENT_SCOPE)
-    set(${other_sources} ${headers} PARENT_SCOPE)
+#===============================================================================================
 
+function(_evil_link_libs_from_metadata module_name dict key)
+    _evil_get_metadata("${dict}" "${key}" libs)
+    if(libs)
+        foreach(lib IN LISTS libs)
+            message(STATUS "\tLinking ${lib} to evil_${module_name} from metadata")
+            target_link_libraries("evil_${module_name}" INTERFACE "${lib}")
+        endforeach()
+    endif()
 endfunction()
 
 #===============================================================================================
@@ -263,37 +350,8 @@ function(_add_standard_defs lib_target)
 endfunction()
 
 #===============================================================================================
-
-function(_should_build_source_file filename output_var)
-    message(STATUS "\tShould build this: ${filename}")
-
-    get_filename_component(trimmed_filename "${filename}" NAME_WE)
-    string(TOLOWER "${trimmed_filename}" trimmed_filename_lowercase)
-
-    set(system_name_regex_for_suffix
-        "android\;Android"
-        "ios\;iOS"
-        "linux\;Linux|.*BSD"
-        "mac\;Darwin"
-        "osx\;Darwin"
-        "windows\;Windows")
-
-    set(result TRUE)
-
-    foreach(pair IN LISTS system_name_regex_for_suffix)
-        list(GET pair 0 suffix)
-        list(GET pair 1 regex)
-
-        if((trimmed_filename_lowercase MATCHES "_${suffix}$") AND NOT (CMAKE_SYSTEM_NAME MATCHES "${regex}"))
-            set(result FALSE)
-        endif()
-    endforeach()
-
-    set("${output_var}" "${result}" PARENT_SCOPE)
-endfunction()
-
-#===============================================================================================
-
+# Function to strip alias prefix from module name
+# Usage: _strip_alias_prefix(<module_name> <return_var>)
 function (_strip_alias_prefix module_name return_var)
     string(REGEX REPLACE "^[a-zA-Z0-9]+::" "" stripped_name "${module_name}")
     set(${return_var} "${stripped_name}" PARENT_SCOPE)
@@ -309,6 +367,24 @@ function(_get_juce_module_path module_name return_var)
         set(${return_var} "${module_path}" PARENT_SCOPE)
     else()
         message(FATAL_ERROR "Module ${module_name} does not have a valid INTERFACE_JUCE_MODULE_PATH property.")
+    endif()
+endfunction()
+
+#===============================================================================================
+# Fetches properties attached to a metadata target.
+function(_evil_get_metadata target key out_var)
+    message(STATUS "\tFetching metadata for key [${key}] from target [${target}]")
+
+    # ToDo: Fix this function 
+    # Do I have the correct target?
+
+    get_target_property(content "${target}" "INTERFACE_JUCE_${key}")
+
+    if("${content}" STREQUAL "content-NOTFOUND")
+        set(${out_var} PARENT_SCOPE)
+        message(STATUS "\t\tMetadata not found.")
+    else()
+        set(${out_var} "${content}" PARENT_SCOPE)
     endif()
 endfunction()
 

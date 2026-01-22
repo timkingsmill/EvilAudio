@@ -5,4 +5,5 @@ add_executable(EvilStaticLibraryClient
 target_link_libraries(EvilStaticLibraryClient
     PRIVATE 
         evil_juce_core
+        evil_juce_gui_basics       
 )
