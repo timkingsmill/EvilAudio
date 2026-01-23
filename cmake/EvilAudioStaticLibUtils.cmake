@@ -1,3 +1,48 @@
+#[[
+================================================================================
+EvilAudioStaticLibUtils.cmake
+
+DESCRIPTION:
+    CMake utility module for building JUCE audio framework modules as static 
+    libraries. Provides functions to create static library targets from JUCE 
+    modules with proper configuration, metadata extraction, and platform-specific 
+    handling.
+
+CONTENTS:
+    - add_juce_module_static_library()
+        Main function to create a static library target for a JUCE module
+    
+    - Helper functions:
+        _add_static_library()              - Creates static library target
+        _extract_metadata_block()          - Parses metadata from module headers
+        _evil_link_libs_from_metadata()    - Links platform libraries from metadata
+        _add_standard_defs()               - Applies standard JUCE definitions
+        _strip_alias_prefix()              - Removes namespace prefixes
+        _get_juce_module_path()            - Resolves module path from target
+        _evil_get_metadata()               - Fetches metadata properties
+        get_juce_cmake_utils_dir()         - Locates CMake utils directory
+
+DEPENDENCIES:
+    - CMake 4.2.0 or higher
+    - JUCE framework CMake integration
+    - JUCE module targets must be pre-defined
+
+FEATURES:
+    - Automatic metadata extraction from JUCE module declarations
+    - Platform-specific compilation and linking (Windows, BSD, Android)
+    - C++ standard detection and enforcement from module metadata
+    - Module dependency resolution and linking
+    - Include path management
+    - Special handling for juce_core module
+    - Windows MSVC /bigobj flag for large modules
+
+USAGE:
+    include(EvilAudioStaticLibUtils.cmake)
+    add_juce_module_static_library(juce_core)
+    add_juce_module_static_library(juce_audio_processors)
+
+================================================================================
+]]#
 include_guard(GLOBAL)
 
 #===============================================================================================

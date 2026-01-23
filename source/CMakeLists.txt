@@ -3,18 +3,19 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Set C++23 as the default for all targets
 set(CMAKE_CXX_STANDARD 23)
 
-#project(EvilAudio)
+# Include folder for EvilAudio custom juce type modules.
+add_subdirectory(modules)
 
-add_subdirectory(applications/EvilStaticLibraryClient)
+# Dont buiild this example by default. (Will only be used for testing purposes)
+#add_subdirectory(applications/EvilStaticLibraryClient)
 
 #[[
-add_subdirectory(modules)
 add_subdirectory(examples/equalizer)
 add_subdirectory(plugins/EvilEQPlugin)
+]]
 
 add_subdirectory(applications/EvilDAW)
-add_subdirectory(applications/EvilEQ)
-add_subdirectory(applications/EvilLookAndFeel)
-add_subdirectory(applications/EvilPluginHost)
+#add_subdirectory(applications/EvilEQ)
+#add_subdirectory(applications/EvilLookAndFeel)
+#add_subdirectory(applications/EvilPluginHost)
 
-]]#

@@ -23,13 +23,14 @@ set(CMAKE_PREFIX_PATH "/source/EvilAudio/libs/JUCE/install")
 #    CACHE BOOL "Enable ASIO support in JUCE"
 #)
 
+# Find the JUCE package.
+# If JUCE is not found, CMake will produce an error.
 find_package(JUCE CONFIG REQUIRED)  
 
-include(cmake/EvilAudioUtils.cmake)
+# Add custom CMake modules
+include(cmake/EvilAudio.cmake)
 
-#include(extras/build/CMake/EvilAudioUtils.cmake)
-#include(external/extras/build/CMake/CMakeUtils.cmake)
-
+# Prevent in-source builds
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
     message(FATAL_ERROR "In-source builds not allowed. Please create a separate build directory and run CMake from there.")
 endif()
