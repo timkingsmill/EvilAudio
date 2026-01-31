@@ -20,27 +20,7 @@ evil_audio_add_gui_app(EvilDAW
 # Create the JuceHeader.h for this target.
 juce_generate_juce_header(EvilDAW)
 
-#[[
-set( 
-    CPP_FILES
-        source/EvilDAW.cpp
-)
-
-target_sources(EvilDAW
-    PRIVATE
-        ${CPP_FILES}
-)
-        ]]
-
-#[[
-source_group(
-    TREE "${CMAKE_CURRENT_SOURCE_DIR}/source"
-    PREFIX "Tims Source Files"
-    FILES ${CPP_FILES}
-)
-    ]]
-
-  
+# Define preprocessor definitions for this target.
 target_compile_definitions(EvilDAW
     PRIVATE
         #JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=0
@@ -61,32 +41,33 @@ target_include_directories(EvilDAW
         include
 )
 
-# Add the source files for this target.
-#source_group("My Source Files\\module" 
-#    FILES
-#        source/EvilDAW.cpp
-#)
-
-#set(MODULE_SOURCES source/EvilDAW.cpp)
-#target_sources(EvilDAW 
-#    PRIVATE
-#        ${MODULE_SOURCES}
-#)
 add_subdirectory(source)
 
 # Link EvilDAW against the evilaudio.eq module.
 
-target_link_libraries(EvilDAW
-    PUBLIC 
-        evil_juce_audio_core    
-        evil_juce_audio_basics
-        evil_juce_audio_devices
-        evil_juce_audio_formats
-        evil_juce_audio_processors
-        evil_juce_audio_utils
-        evil_juce_audio_eq
-        evil_juce_audio_file_utils
-        evil_juce_audio_gui_basics
+# Todo: Make a function to link all required static libraries.
+#       Should check that the static libraries exist first.
+#       Maybe in EvilAudio cmake functions?
+
+# Link required static libraries.
+
+target_link_static_libraries(EvilDAW
+    #evil::juce_core_lib    
+    #evil::juce_audio_basics_lib
+    evil::juce_audio_devices_lib
+    #evil::juce_audio_formats_lib
+    #evil::juce_audio_processors_lib
+    evil::juce_audio_utils_lib
+    evil::juce_dsp_lib
+    #evil::juce_data_structures_lib
+    #evil::juce_events_lib
+    #evil::juce_graphics_lib
+    #evil::juce_gui_basics_lib
+    #evil::juce_gui_extra_lib
+
+    evil::evil_audio_core_lib
+    evil::evil_audio_lookandfeel_lib
+    evil::evil_audio_eq_lib
 )
 
 # Link recommended flags.
@@ -96,18 +77,5 @@ target_link_libraries(EvilDAW
         juce::juce_recommended_config_flags 
         juce::juce_recommended_lto_flags
 )
-
-# DONT link to JUCE modules. Link EvilDAW against the static libraries.
-# See libs/EvilAudio/CMakeLists.txt for JUCE module static library creation.
-#[[
-target_link_libraries(EvilDAW
-    PRIVATE 
-        juce::juce_gui_extra 
-        juce::juce_audio_utils 
-        juce::juce_dsp 
-        juce::juce_audio_basics 
-        juce::juce_core
-)  
-        ]] 
 
 # -----------------------------------------------------------------------------------------------

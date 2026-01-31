@@ -27,13 +27,26 @@ set(CMAKE_PREFIX_PATH "/source/EvilAudio/libs/JUCE/install")
 # If JUCE is not found, CMake will produce an error.
 find_package(JUCE CONFIG REQUIRED)  
 
-# Add custom CMake modules
+# Add custom CMake functions for Evil Audio.
 include(cmake/EvilAudio.cmake)
 
 # Prevent in-source builds
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
     message(FATAL_ERROR "In-source builds not allowed. Please create a separate build directory and run CMake from there.")
 endif()
+
+# Test the logging with indentation functions.
+#[[
+increment_log_indent()
+message(STATUS "Single Indented Message")      
+
+increment_log_indent()
+message(STATUS "Double Indented Message")      
+
+decrement_log_indent()
+#decrement_log_indent()
+message(STATUS "Unindented Message")     
+]] 
 
 # Configure ASIO SDK path
 set(ASIO_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/ASIOSDK/common")
