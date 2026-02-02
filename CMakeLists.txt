@@ -18,11 +18,6 @@ include(CMakeDependentOption)
 # Add the JUCE libaray to CMAKE_PREFIX_PATH for find_package
 set(CMAKE_PREFIX_PATH "/source/EvilAudio/libs/JUCE/install")
 
-#set(
-#    JUCE_ASIO_SUPPORT TRUE
-#    CACHE BOOL "Enable ASIO support in JUCE"
-#)
-
 # Find the JUCE package.
 # If JUCE is not found, CMake will produce an error.
 find_package(JUCE CONFIG REQUIRED)  
@@ -35,20 +30,11 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
     message(FATAL_ERROR "In-source builds not allowed. Please create a separate build directory and run CMake from there.")
 endif()
 
-# Test the logging with indentation functions.
-#[[
-increment_log_indent()
-message(STATUS "Single Indented Message")      
-
-increment_log_indent()
-message(STATUS "Double Indented Message")      
-
-decrement_log_indent()
-#decrement_log_indent()
-message(STATUS "Unindented Message")     
-]] 
-
-# Configure ASIO SDK path
+# -----------------------------------------------------------------------------------------------
+# Detects the ASIO SDK in libs/ASIOSDK/common, enables JUCE ASIO support on Windows,
+# and sets ASIO_SDK_PATH accordingly; otherwise warns and disables ASIO support.
+# The ASIO SDK can be downloaded from https://developer.steinberg.help/display/ASIOSDK/ASIO+SDK+Download
+# 
 set(ASIO_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/ASIOSDK/common")
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/ASIOSDK/common")
     if (WIN32)
@@ -65,5 +51,7 @@ endif()
 
 add_subdirectory(libs)
 add_subdirectory(source)
+
+add_subdirectory(docs/doxygen)
 
 # -----------------------------------------------------------------------------------------------
