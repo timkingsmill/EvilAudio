@@ -1,10 +1,11 @@
 # -----------------------------------------------------------------------------------------------
 # EvilEQ executable target.
 
+project(EvilEQ VERSION 0.1.0 LANGUAGES C CXX)   
+
 set(CMAKE_FOLDER EvilAudio/applications/EvilEQ)
 
-project(EvilEQ VERSION 0.1.0 LANGUAGES C CXX)   
-juce_add_gui_app(EvilEQ
+evil_audio_add_gui_app(EvilEQ
     PRODUCT_NAME "EvilEQ"   
     VERSION ${PROJECT_VERSION}
     BUNDLE_ID "com.evilaudio.evilEq"
@@ -24,19 +25,6 @@ target_compile_definitions(EvilEQ
         JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:EvilEQ,JUCE_PRODUCT_NAME>"
         JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:EvilEQ,JUCE_VERSION>")
 
-target_include_directories(EvilEQ    
-    PRIVATE 
-        include)
-
-# Add the source files for this target.
-add_subdirectory(source)
-
-target_link_libraries(EvilEQ
-    PRIVATE
-        evilaudio::evilaudio_core
-        evilaudio::evilaudio_eq
-)
-
 target_link_libraries(EvilEQ     
     PRIVATE 
         juce::juce_recommended_warning_flags 
@@ -44,15 +32,23 @@ target_link_libraries(EvilEQ
         juce::juce_recommended_lto_flags
 )
 
-target_link_libraries(EvilEQ
+target_include_directories(EvilEQ    
     PRIVATE 
-        juce::juce_audio_utils 
-        juce::juce_audio_devices
-        juce::juce_audio_basics 
-        juce::juce_audio_plugin_client
-        juce::juce_core
-        juce::juce_dsp 
-        juce::juce_gui_extra 
+        include)
+
+# Add the source files for this target.
+add_subdirectory(source)
+
+target_link_static_libraries(EvilEQ
+    # JUCE static libraries
+    evil::juce_audio_devices_lib
+    evil::juce_audio_utils_lib
+    evil::juce_dsp_lib
+
+    # EvilAudio static libraries
+    evil::evil_audio_core_lib
+    evil::evil_audio_lookandfeel_lib
+    evil::evil_audio_eq_lib
 )
 
 # =================================================================================================

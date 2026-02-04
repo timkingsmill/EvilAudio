@@ -13,7 +13,9 @@ if (DOXYGEN_FOUND)
     # Any Doxygen config tag can be set by a CMake variable prefixed with DOXYGEN_
     set(DOXYGEN_PROJECT_NAME "${PROJECT_NAME} Documentation")
     set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/docs")
-    
+    set(DOXYGEN_CREATE_SUBDIRS       YES)
+    set(DOXYGEN_FULL_PATH_NAMES      YES)
+
     set(DOXYGEN_EXTRACT_ALL          YES)
     set(DOXYGEN_HIDE_UNDOC_RELATIONS NO)
 
@@ -22,9 +24,9 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_INTERACTIVE_SVG      YES)
     
     set(DOXYGEN_CLASS_GRAPH          YES)
-    
-    set(DOXYGEN_COLLABORATION_GRAPH  NO)
+    set(DOXYGEN_COLLABORATION_GRAPH  YES)
     set(DOXYGEN_UML_LOOK             YES)
+    
     set(DOXYGEN_UML_LIMIT_NUM_FIELDS 50)
     set(DOXYGEN_TEMPLATE_RELATIONS   YES)
     set(DOXYGEN_DOT_GRAPH_MAX_NODES  100)
@@ -33,8 +35,7 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_CALL_GRAPH           YES)
     set(DOXYGEN_CALLER_GRAPH         YES)
     set(DOXYGEN_GRAPHICAL_HIERARCHY  YES)
-    set(DOXYGEN_TREESCALE            0.2)
-
+    
     set(DOXYGEN_GENERATE_LATEX       NO)
     set(DOXYGEN_GENERATE_RTF         NO)
     set(DOXYGEN_GENERATE_XML         NO)
@@ -51,7 +52,8 @@ if (DOXYGEN_FOUND)
     # The 'doc' target will scan the current source directory and create a 'doc' build target
     doxygen_add_docs(
         doc                  # Name of the custom target (e.g., you can run `cmake --build . --target doc`)
-        "${CMAKE_SOURCE_DIR}/source"  # Input directory to scan for source files
+        #"${CMAKE_SOURCE_DIR}/source/applications/EvilDAW"  # Input directory to scan for source files
+        "${CMAKE_SOURCE_DIR}/source/applications/EvilPluginHost"  # Input directory to scan for source files
         ALL                  # Adds the target to the default build, so it runs with `cmake --build .`
         COMMENT "Generating API documentation with Doxygen" # Comment for the custom command
     )

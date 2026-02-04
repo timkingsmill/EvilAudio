@@ -32,6 +32,14 @@ target_compile_definitions(EvilDAW
         JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:EvilDAW,JUCE_VERSION>"
 )
 
+# Link recommended flags.
+target_link_libraries(EvilDAW 
+    PRIVATE 
+        juce::juce_recommended_warning_flags 
+        juce::juce_recommended_config_flags 
+        juce::juce_recommended_lto_flags
+)
+
 # Add the include files for this target.
 add_subdirectory(include)
 
@@ -43,39 +51,16 @@ target_include_directories(EvilDAW
 
 add_subdirectory(source)
 
-# Link EvilDAW against the evilaudio.eq module.
-
-# Todo: Make a function to link all required static libraries.
-#       Should check that the static libraries exist first.
-#       Maybe in EvilAudio cmake functions?
-
 # Link required static libraries.
 
 target_link_static_libraries(EvilDAW
-    #evil::juce_core_lib    
-    #evil::juce_audio_basics_lib
     evil::juce_audio_devices_lib
-    #evil::juce_audio_formats_lib
-    #evil::juce_audio_processors_lib
     evil::juce_audio_utils_lib
     evil::juce_dsp_lib
-    #evil::juce_data_structures_lib
-    #evil::juce_events_lib
-    #evil::juce_graphics_lib
-    #evil::juce_gui_basics_lib
-    #evil::juce_gui_extra_lib
 
     evil::evil_audio_core_lib
     evil::evil_audio_lookandfeel_lib
     evil::evil_audio_eq_lib
-)
-
-# Link recommended flags.
-target_link_libraries(EvilDAW 
-    PRIVATE 
-        juce::juce_recommended_warning_flags 
-        juce::juce_recommended_config_flags 
-        juce::juce_recommended_lto_flags
 )
 
 # -----------------------------------------------------------------------------------------------

@@ -1,11 +1,10 @@
 # -----------------------------------------------------------------------------------------------
 # EvilLookAndFeel executable target.
+project(EvilLookAndFeel VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_FOLDER EvilAudio/applications/EvilLookAndFeel)
 
-project(EvilLookAndFeel VERSION 0.1.0 LANGUAGES C CXX)
-
-juce_add_gui_app(EvilLookAndFeel
+evil_audio_add_gui_app(EvilLookAndFeel
     PRODUCT_NAME "EvilLookAndFeel"
     VERSION ${PROJECT_VERSION}
     BUNDLE_ID "com.evilaudio.evillookandfeel"
@@ -25,6 +24,13 @@ target_compile_definitions(EvilLookAndFeel
         JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:EvilLookAndFeel,JUCE_PRODUCT_NAME>"
         JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:EvilLookAndFeel,JUCE_VERSION>")
 
+target_link_libraries(EvilLookAndFeel        
+    PRIVATE 
+        juce::juce_recommended_warning_flags 
+        juce::juce_recommended_config_flags 
+        juce::juce_recommended_lto_flags
+)
+
 target_include_directories(EvilLookAndFeel      
     PRIVATE 
         include)
@@ -33,28 +39,16 @@ target_include_directories(EvilLookAndFeel
 add_subdirectory(include)    
 add_subdirectory(source)    
 
-target_link_libraries(EvilLookAndFeel
-    PRIVATE
-        evilaudio::evilaudio_core
-        evilaudio::evilaudio_lookandfeel
-)
+target_link_static_libraries(EvilLookAndFeel
+    # JUCE static libraries
+    evil::juce_audio_devices_lib
+    evil::juce_audio_utils_lib
+    evil::juce_dsp_lib
 
-target_link_libraries(EvilLookAndFeel        
-    PRIVATE 
-        juce::juce_recommended_warning_flags 
-        juce::juce_recommended_config_flags 
-        juce::juce_recommended_lto_flags
-)
-
-target_link_libraries(EvilLookAndFeel
-    PRIVATE 
-        juce::juce_audio_utils 
-        juce::juce_audio_devices
-        juce::juce_audio_basics 
-        juce::juce_audio_plugin_client
-        juce::juce_core
-        juce::juce_dsp 
-        juce::juce_gui_extra 
+    # EvilAudio static libraries
+    evil::evil_audio_core_lib
+    evil::evil_audio_lookandfeel_lib
+    evil::evil_audio_eq_lib
 )
 
 # =================================================================================================
