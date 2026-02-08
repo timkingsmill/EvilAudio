@@ -15,7 +15,7 @@ add_subdirectory(plugins/EvilEQPlugin)
 ]]
 
 add_subdirectory(applications/EvilDAW)
-add_subdirectory(applications/EvilEQ)
-add_subdirectory(applications/EvilLookAndFeel)
-add_subdirectory(applications/EvilPluginHost)
+#add_subdirectory(applications/EvilEQ)
+#add_subdirectory(applications/EvilLookAndFeel)
+#add_subdirectory(applications/EvilPluginHost)
 

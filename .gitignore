@@ -6,6 +6,7 @@
 
 # Ignore graphwiz documentation output directories
 /docs/graphwiz/
+/docs/api/
 
 # CMake build output directories
 /build/

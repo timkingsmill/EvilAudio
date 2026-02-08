@@ -1,5 +1,5 @@
-#include <JuceHeader.h>
-#include "MainWindowContent.h"
+#include "evil_daw_main.h"
+#include "include/MainWindowContent.h"
 
 class EvilDAWApplication final : public juce::JUCEApplication
 {

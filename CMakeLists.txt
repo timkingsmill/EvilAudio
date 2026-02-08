@@ -52,6 +52,6 @@ endif()
 add_subdirectory(libs)
 add_subdirectory(source)
 
-add_subdirectory(docs/doxygen)
+##add_subdirectory(docs/doxygen)
 
 # -----------------------------------------------------------------------------------------------

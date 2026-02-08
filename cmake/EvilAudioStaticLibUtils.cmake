@@ -90,8 +90,7 @@ Special Cases:
 function (add_juce_module_static_library juce_module)  
 
     message(STATUS  "-------------------------------------------------------------------------")
-    message (STATUS "Adding JUCE Module Static Library for module: ${juce_module}")
-    increment_log_indent()
+
     # Check that the module target exists. If it doesn't, throw an error.
     if(NOT TARGET ${juce_module})
         message(FATAL_ERROR "Module ${juce_module} is not a valid or existing cmake target.")
@@ -99,6 +98,12 @@ function (add_juce_module_static_library juce_module)
     # Strip any alias prefix from the module name.
     _strip_alias_prefix(${juce_module} temp)
     set(juce_module ${temp})
+
+    # Set the name of the static library target
+    set(lib_target "${juce_module}_lib")
+    message(STATUS "Adding Static Library target: ${lib_target} for JUCE module: ${juce_module}")
+
+    increment_log_indent()
 
     # Get the path to the JUCE module parent directory
     # This is where the module source files are located.
@@ -109,7 +114,7 @@ function (add_juce_module_static_library juce_module)
     if(NOT EXISTS "${module_parent_path}")
         message(FATAL_ERROR "${juce_module} source directory does not exist: ${module_parent_path}")
     endif()
-    message(STATUS "Found parent directory for JUCE [${juce_module}] module : ${module_parent_path}")
+    message(STATUS "Found the [${juce_module}] JUCE modules parent directory: ${module_parent_path}")
     # Check that the module header file exists
     set(module_header_name "${juce_module}.h")
     
@@ -138,7 +143,7 @@ function (add_juce_module_static_library juce_module)
     endforeach()
 
     # Create the static library target for the JUCE module.
-    set(lib_target "${juce_module}_lib")
+    ###set(lib_target "${juce_module}_lib")
     _add_static_library(${lib_target} "${module_sources}")
     add_library(evil::${lib_target} ALIAS ${lib_target})
     message(STATUS "Created static library target: ${lib_target}")
@@ -171,7 +176,9 @@ function (add_juce_module_static_library juce_module)
         endif()
     endif()
 
-    # Apply the juce module include directories to the static library target.
+    # .............................................................................
+    # Get the include directories from the JUCE module target and apply them to 
+    # the static library target.
     message(STATUS "Looking for include directories for module: ${juce_module}")
     get_target_property(module_includes ${juce_module} INTERFACE_INCLUDE_DIRECTORIES)
     if(module_includes)
@@ -181,8 +188,10 @@ function (add_juce_module_static_library juce_module)
         foreach(include_dir IN LISTS module_includes)
             message(STATUS "Include dir: ${include_dir}")
         endforeach()
+        decrement_log_indent()
 
         message(STATUS "Appending include directory to ${lib_target}")
+
         target_include_directories(${lib_target} 
             PUBLIC 
                 ${module_includes}

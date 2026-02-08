@@ -451,9 +451,10 @@ void ParametricEqualiserProcessor::processBlock(juce::AudioBuffer<float>& buffer
     juce::ScopedNoDenormals noDenormals;
     juce::ignoreUnused(midiMessages);
 
-    if (getActiveEditor() != nullptr) {
-        _inputAnalyser.addAudioData(buffer, 0, getTotalNumInputChannels());
-    }
+    // Always feed data to the analysers regardless of whether the editor is open or not.
+    //if (getActiveEditor() != nullptr) {
+    _inputAnalyser.addAudioData(buffer, 0, getTotalNumInputChannels());
+    //}
 
     if (_wasBypassed) {
         _filterChain.reset();
@@ -464,9 +465,10 @@ void ParametricEqualiserProcessor::processBlock(juce::AudioBuffer<float>& buffer
     juce::dsp::ProcessContextReplacing<float> context(ioBuffer);
     _filterChain.process(context);
 
-    if (getActiveEditor() != nullptr) {
-        _outputAnalyser.addAudioData(buffer, 0, getTotalNumOutputChannels());
-    }
+    // Always feed data to the analysers regardless of whether the editor is open or not.
+    // if (getActiveEditor() != nullptr) {
+    _outputAnalyser.addAudioData(buffer, 0, getTotalNumOutputChannels());
+    //}
 }
 
 bool ParametricEqualiserProcessor::isBusesLayoutSupported(const BusesLayout& busesLayout) const { 

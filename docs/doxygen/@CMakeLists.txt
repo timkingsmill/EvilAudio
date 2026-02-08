@@ -52,7 +52,7 @@ if (DOXYGEN_FOUND)
     # The 'doc' target will scan the current source directory and create a 'doc' build target
     doxygen_add_docs(
         doc                  # Name of the custom target (e.g., you can run `cmake --build . --target doc`)
-        #"${CMAKE_SOURCE_DIR}/source/applications/EvilDAW"  # Input directory to scan for source files
+        "${CMAKE_SOURCE_DIR}/source/applications/EvilDAW"  # Input directory to scan for source files
         "${CMAKE_SOURCE_DIR}/source/applications/EvilPluginHost"  # Input directory to scan for source files
         ALL                  # Adds the target to the default build, so it runs with `cmake --build .`
         COMMENT "Generating API documentation with Doxygen" # Comment for the custom command
