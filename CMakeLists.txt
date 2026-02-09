@@ -54,4 +54,11 @@ add_subdirectory(source)
 
 ##add_subdirectory(docs/doxygen)
 
+
+# Set EvilDAW as the startup project in Visual Studio.
+# Do this after adding the subdirectories to ensure that 
+# the EvilDAW target is defined before we try to set it as the startup project.
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT EvilDAW)
+
+
 # -----------------------------------------------------------------------------------------------

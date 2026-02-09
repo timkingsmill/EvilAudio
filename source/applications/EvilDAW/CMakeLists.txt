@@ -6,9 +6,6 @@ set(CMAKE_FOLDER EvilAudio/applications/EvilDAW)
 
 project(EvilDAW VERSION 0.1.0 LANGUAGES C CXX)
 
-# Set EvilDAW as the startup project in Visual Studio
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT EvilDAW)
-
 message(STATUS "Configuring EvilDAW...")
 increment_log_indent()
 messageWithColor(COLOR BLUE "Configuring EvilDAW...")
@@ -20,10 +17,6 @@ evil_audio_add_gui_app(EvilDAW
     COMPANY_PRODUCT_NAME "Evil Audio DAW"
     COMPANY_NAME "Evil Audio"
 )
-
-#
-# Create the JuceHeader.h for this target.
-#juce_generate_juce_header(EvilDAW)
 
 # Define preprocessor definitions for this target.
 target_compile_definitions(EvilDAW
@@ -56,8 +49,14 @@ target_sources(EvilDAW
         evil_daw_main.h
         evil_daw_main.cpp
 
+        evil_daw_application.h
+        evil_daw_application.cpp
+
         gui/evil_daw_main_window.h
         gui/evil_daw_main_window.cpp
+
+        gui/evil_daw_main_window_content.h
+        gui/evil_daw_main_window_content.cpp
         
         include/LiveScrollingAudioVisualiser.h
         include/MainWindowContent.h
@@ -69,6 +68,7 @@ get_target_property(target_sources EvilDAW SOURCES)
 
 increment_log_indent()
 
+#[[
 # Add header files to a separate source group.
 set(include_files ${target_sources})
 list(FILTER include_files INCLUDE REGEX ".*\\.h$|.*\\.hpp$")
@@ -85,22 +85,27 @@ endforeach()
 
 decrement_log_indent()
 
+
 # Create the Header files group.
 source_group(
     TREE "${CMAKE_CURRENT_SOURCE_DIR}"
     PREFIX "Header Files"
     FILES ${include_files}
 )
+    ]]
 
 # Create the Source files group.
 source_group(
     TREE "${CMAKE_CURRENT_SOURCE_DIR}"
     PREFIX "Source Files"
-    FILES ${source_files}
+    FILES 
+        #${source_files}
+        ${target_sources}
 )
 
-# Create the JuceHeader.h for this target.
-juce_generate_juce_header(EvilDAW)
+# Don't need to specify the juce header file for this.
+# Use include directories instead to make it available for the target's source files.
+#### juce_generate_juce_header(EvilDAW)
 
 target_link_static_libraries(EvilDAW
     evil::juce_audio_devices_lib
