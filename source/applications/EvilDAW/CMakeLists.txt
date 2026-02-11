@@ -37,26 +37,33 @@ target_compile_definitions(EvilDAW
 # This is a common practice to keep the public interface 
 # of the target clean and to avoid exposing internal implementation 
 # details to other targets that might link against EvilDAW.
+
 target_include_directories(EvilDAW      
-    INTERFACE 
-        include
+    PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
-        
+
 message(STATUS "Adding target sources for EvilDAW...")
 
 target_sources(EvilDAW
     PRIVATE
-        evil_daw_main.h
-        evil_daw_main.cpp
+        application/evil_daw_main.h
+        application/evil_daw_main.cpp
 
-        evil_daw_application.h
-        evil_daw_application.cpp
+        application/evil_daw_application.h
+        application/evil_daw_application.cpp
 
-        gui/evil_daw_main_window.h
-        gui/evil_daw_main_window.cpp
+        application/evil_daw_application_info.h
+        application/evil_daw_application_info.cpp
 
-        gui/evil_daw_main_window_content.h
-        gui/evil_daw_main_window_content.cpp
+        main_window/evil_daw_main_window.h
+        main_window/evil_daw_main_window.cpp
+
+        main_window/evil_daw_main_window_content.h
+        main_window/evil_daw_main_window_content.cpp
+
+        main_window/evil_daw_main_window_menu.h
+        main_window/evil_daw_main_window_menu.cpp
         
         include/LiveScrollingAudioVisualiser.h
         include/MainWindowContent.h
@@ -68,38 +75,11 @@ get_target_property(target_sources EvilDAW SOURCES)
 
 increment_log_indent()
 
-#[[
-# Add header files to a separate source group.
-set(include_files ${target_sources})
-list(FILTER include_files INCLUDE REGEX ".*\\.h$|.*\\.hpp$")
-foreach(src IN LISTS include_files)
-    message(STATUS "Found header file: ${src}")
-endforeach()
-
-# Add source files to a separate source group.
-set(source_files ${target_sources})
-list(FILTER source_files INCLUDE REGEX ".*\\.cpp$|.*\\.cxx$|.*\\.c$|.*\\.mm$|.*\\.m$")
-foreach(src IN LISTS source_files)
-    message(STATUS "Found source file: ${src}")
-endforeach()
-
-decrement_log_indent()
-
-
-# Create the Header files group.
-source_group(
-    TREE "${CMAKE_CURRENT_SOURCE_DIR}"
-    PREFIX "Header Files"
-    FILES ${include_files}
-)
-    ]]
-
 # Create the Source files group.
 source_group(
     TREE "${CMAKE_CURRENT_SOURCE_DIR}"
     PREFIX "Source Files"
     FILES 
-        #${source_files}
         ${target_sources}
 )
 
@@ -108,7 +88,7 @@ source_group(
 #### juce_generate_juce_header(EvilDAW)
 
 target_link_static_libraries(EvilDAW
-    evil::juce_audio_devices_lib
+    evil::juce_audio_devices_lib    
     evil::juce_audio_utils_lib
     evil::juce_dsp_lib
 

@@ -101,7 +101,7 @@ function (add_juce_module_static_library juce_module)
 
     # Set the name of the static library target
     set(lib_target "${juce_module}_lib")
-    message(STATUS "Adding Static Library target: ${lib_target} for JUCE module: ${juce_module}")
+    message(STATUS "Configuring Static Library target: ${lib_target} for JUCE module: ${juce_module}")
 
     increment_log_indent()
 
@@ -131,21 +131,17 @@ function (add_juce_module_static_library juce_module)
     # Found the module header
     message(STATUS "Found module header: ${module_header_name}")
 
-    # Copy the source module souces and headers from the JUCE module
-    # to this static library target.
-    get_target_property(module_sources ${juce_module} INTERFACE_JUCE_MODULE_SOURCES)
-    foreach(filename ${module_sources})
-        #message(STATUS "\t\tModule source: ${filename}")
-    endforeach()
-    get_target_property(module_headers ${juce_module} INTERFACE_JUCE_MODULE_HEADERS)
-    foreach(filename ${module_headers})
-        #message(STATUS "\t\tModule header: ${filename}")
-    endforeach()
+    set(base_path "${module_parent_path}")
+    # Use the JUCE CMake utility function to get the list of module sources and headers.
+    _get_library_sources("${module_parent_path}/${juce_module}" "${base_path}" globbed_sources headers)
 
+    set(all_module_sources)
+    list(APPEND all_module_sources ${globbed_sources})
+    
     # Create the static library target for the JUCE module.
-    ###set(lib_target "${juce_module}_lib")
-    _add_static_library(${lib_target} "${module_sources}")
+    _add_static_library(${lib_target} "${all_module_sources}")
     add_library(evil::${lib_target} ALIAS ${lib_target})
+
     message(STATUS "Created static library target: ${lib_target}")
 
     set_target_properties(${lib_target} PROPERTIES
@@ -153,28 +149,6 @@ function (add_juce_module_static_library juce_module)
         INTERFACE_JUCE_MODULE_HEADERS   "${module_headers}"
         INTERFACE_JUCE_MODULE_PATH      "${module_parent_path}"
     )
-
-    #if(JUCE_ENABLE_MODULE_SOURCE_GROUPS)
-    #    message(STATUS "\tAdding module headers to: ${lib_target}")
-    #    target_sources(${lib_target} INTERFACE ${module_headers})
-    #endif()
-
-    # Config special case juce_core  
-    if(${juce_module} STREQUAL "juce_core")
-        message(STATUS "SPECIAL CASE")
-
-        _add_standard_defs(${lib_target})
-
-        target_link_libraries(${lib_target} INTERFACE juce::juce_atomic_wrapper)
-
-        if(CMAKE_SYSTEM_NAME MATCHES ".*BSD")
-            target_link_libraries(${lib_target} INTERFACE execinfo)
-        elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
-            target_sources(${lib_target} INTERFACE "${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c")
-            target_include_directories(${lib_target} INTERFACE "${ANDROID_NDK}/sources/android/cpufeatures")
-            target_link_libraries(${lib_target} INTERFACE android log)
-        endif()
-    endif()
 
     # .............................................................................
     # Get the include directories from the JUCE module target and apply them to 
@@ -199,14 +173,6 @@ function (add_juce_module_static_library juce_module)
         decrement_log_indent()
     endif()
 
-    # We also need to export the include directories for the modules
-    # Must be public to add the include path to both this library
-    # and its clients.
-    #target_include_directories(${lib_target} 
-    #    PUBLIC 
-    #        #${module_parent_path}
-    #)
-
     # Set compiler definitions for the static library target.
     # This must be done to ensure that the "JuceHeader.h" file
     # is correctly configured for each module.
@@ -219,6 +185,7 @@ function (add_juce_module_static_library juce_module)
     if (TARGET ${metadata_dict})
         message(STATUS "\tExtracted metadata for module: ${juce_module} as target: ${metadata_dict}")
     endif()
+    
     # Populate the metadata dictionary
     _evil_get_metadata("${metadata_dict}" minimumCppStandard module_cpp_standard)
     # Set the C++ standard if specified in the module metadata
@@ -240,8 +207,7 @@ function (add_juce_module_static_library juce_module)
             endif()
 
             # Link Windows-specific libraries from metadata extracted from the JUCE module header.
-            #_add_evil_link_libs_from_metadata("${lib_target}" "${metadata_dict}" windowsLibs)
-            _evil_link_libs_from_metadata("${juce_module}" "${metadata_dict}" windowsLibs)
+            ##################_evil_link_libs_from_metadata("${juce_module}" "${metadata_dict}" windowsLibs)
         endif()
     endif()
 
@@ -255,17 +221,6 @@ function (add_juce_module_static_library juce_module)
         target_link_libraries(${lib_target} PRIVATE ${dependency_target})
     endforeach()
 
-    _evil_get_metadata("${metadata_dict}" searchpaths module_searchpaths)
-    if(NOT module_searchpaths STREQUAL "")
-        foreach(module_searchpath IN LISTS module_searchpaths)
-            target_include_directories(
-                ${lib_target}
-                INTERFACE "${module_parent_path}/${module_searchpath}")
-        endforeach()
-    endif()
-
-    _juce_add_module_staticlib_paths("${lib_target}" "${module_parent_path}")
-
     # Set standard JUCE compile definitions for the static library target.
     # These are required for proper JUCE module functionality.
     # We're linking the modules privately, but we need to export
@@ -276,9 +231,10 @@ function (add_juce_module_static_library juce_module)
             JUCE_WEB_BROWSER=0
             JUCE_USE_CURL=0
             JUCE_INCLUDE_ZLIB_CODE=1
-        INTERFACE
-            $<TARGET_PROPERTY:${lib_target},COMPILE_DEFINITIONS>
+        #INTERFACE
+        #    $<TARGET_PROPERTY:${lib_target},COMPILE_DEFINITIONS>
     )
+
     decrement_log_indent()
     message(STATUS "-------------------------------------------------------------------------")
 endfunction()
@@ -303,15 +259,14 @@ endfunction()
 #
 function(_add_static_library target sources)
     add_library(${target} STATIC)
-    increment_log_indent()
     message(STATUS "Adding sources to static library target: ${target}")
+
     increment_log_indent()
-    
     foreach(filename ${sources})
         message(STATUS "Adding source file to ${target}: ${filename}")
     endforeach()
     decrement_log_indent()
-    decrement_log_indent()
+
     target_sources(${target} PRIVATE ${sources})
 endfunction()
 
@@ -410,7 +365,7 @@ function(_evil_link_libs_from_metadata module_name dict key)
     if(libs)
         foreach(lib IN LISTS libs)
             message(STATUS "\tLinking ${lib} to ${module_name}_lib from metadata")
-            target_link_libraries("${module_name}_lib" INTERFACE "${lib}")
+            target_link_libraries("${module_name}_lib" PRIVATE  "${lib}")
         endforeach()
     endif()
 endfunction()
@@ -484,3 +439,56 @@ function (get_juce_cmake_utils_dir return_var)
 endfunction()
 
 # ================================================================================================    
+
+function(_get_library_sources module_path output_path built_sources other_sources)
+    get_filename_component(module_parent_path ${module_path} DIRECTORY)
+    get_filename_component(module_glob ${module_path} NAME)
+
+    file(GLOB_RECURSE all_module_files
+        CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
+        RELATIVE "${module_parent_path}"
+        "${module_path}/*")
+
+    set(base_path "${module_glob}/${module_glob}")
+
+    set(module_cpp ${all_module_files})
+    list(FILTER module_cpp INCLUDE REGEX "^${base_path}[^/]*\\.(c|cc|cpp|cxx|s|asm)$")
+
+    if(APPLE)
+        set(module_mm ${all_module_files})
+        list(FILTER module_mm INCLUDE REGEX "^${base_path}[^/]*\\.mm$")
+
+        if(module_mm)
+            set(module_mm_replaced ${module_mm})
+            list(TRANSFORM module_mm_replaced REPLACE "\\.mm$" ".cpp")
+            list(REMOVE_ITEM module_cpp ${module_mm_replaced})
+        endif()
+
+        set(module_apple_files ${all_module_files})
+        list(FILTER module_apple_files INCLUDE REGEX "${base_path}[^/]*\\.(m|mm|metal|r|swift)$")
+        list(APPEND module_cpp ${module_apple_files})
+    endif()
+
+    set(headers ${all_module_files})
+
+    set(module_files_to_build)
+
+    foreach(filename IN LISTS module_cpp)
+        _juce_should_build_module_source("${filename}" should_build_file)
+
+        if(should_build_file)
+            list(APPEND module_files_to_build "${filename}")
+        endif()
+    endforeach()
+
+    if(NOT "${module_files_to_build}" STREQUAL "")
+        list(REMOVE_ITEM headers ${module_files_to_build})
+    endif()
+
+    foreach(source_list IN ITEMS module_files_to_build headers)
+        list(TRANSFORM ${source_list} PREPEND "${output_path}/")
+    endforeach()
+
+    set(${built_sources} ${module_files_to_build} PARENT_SCOPE)
+    set(${other_sources} ${headers} PARENT_SCOPE)
+endfunction()

@@ -1,5 +1,10 @@
 #include "evil_daw_application.h"
-#include "gui/evil_daw_main_window.h"
+#include "main_window/evil_daw_main_window.h"
+
+
+// Implemented in juce_core_CompilationTime.cpp
+extern const char* evil_daw_compilationDate;
+extern const char* evil_daw_compilationTime;
 
 namespace evil
 {
@@ -9,6 +14,8 @@ namespace evil
     bool EvilDAWApplication::moreThanOneInstanceAllowed() { return false; }
 
     void EvilDAWApplication::initialise(const juce::String& commandLine) {
+
+        //auto compilationDateTime = juce::String(evil_daw_compilationDate) + " " + juce::String(evil_daw_compilationTime);   
         // This method is where you should put your application's initialisation code..
         juce::ignoreUnused(commandLine);
         _mainWindow.reset(new evil::EvilDAWMainWindow(getApplicationName(), *this));

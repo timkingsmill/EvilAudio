@@ -13,7 +13,8 @@ EvilDAWMainWindow::EvilDAWMainWindow(const juce::String& name, juce::JUCEApplica
      _application(application)
 {
     setUsingNativeTitleBar(true);
-    _mainWindowContent.reset(new EvilDAWMainWindowContent());
+
+    _mainWindowContent = std::make_unique<EvilDAWMainWindowContent>();
     setContentOwned(_mainWindowContent.get(), true);
 
     #if JUCE_IOS || JUCE_ANDROID
@@ -25,6 +26,10 @@ EvilDAWMainWindow::EvilDAWMainWindow(const juce::String& name, juce::JUCEApplica
     #endif
     setVisible(true);
 }
+
+EvilDAWMainWindow::~EvilDAWMainWindow() {
+
+};
 
 void EvilDAWMainWindow::closeButtonPressed()
 {

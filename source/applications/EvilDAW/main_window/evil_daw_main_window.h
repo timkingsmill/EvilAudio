@@ -9,7 +9,8 @@ class EvilDAWMainWindow final : public juce::DocumentWindow
 {
 public:
     explicit EvilDAWMainWindow(const juce::String& name,
-                              juce::JUCEApplication& application);
+                                     juce::JUCEApplication& application);
+    ~EvilDAWMainWindow() override;
   
     void closeButtonPressed() override;
 private:

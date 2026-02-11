@@ -146,3 +146,16 @@ function(target_link_static_libraries target)
     message(STATUS "Finished linking static libraries to target: ${target}")
 endfunction()
 
+# Function to print all targets in the project (for debugging purposes)
+function(print_all_targets DIR)
+    get_property(TGTS DIRECTORY "${DIR}" PROPERTY BUILDSYSTEM_TARGETS)
+    foreach(TGT IN LISTS TGTS)
+        message(STATUS "\tJUCE ModuleTarget: ${TGT}")
+        # TODO: Do something about it
+    endforeach()
+
+    get_property(SUBDIRS DIRECTORY "${DIR}" PROPERTY SUBDIRECTORIES)
+    foreach(SUBDIR IN LISTS SUBDIRS)
+        print_all_targets("${SUBDIR}")
+    endforeach()
+endfunction()

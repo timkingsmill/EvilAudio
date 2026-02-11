@@ -34,7 +34,7 @@ function(evil_audio_add_gui_app target)
     _juce_initialise_target(${target} ${ARGN})
     _juce_set_output_name(${target} $<TARGET_PROPERTY:${target},JUCE_PRODUCT_NAME>)
     set_target_properties(${target} PROPERTIES JUCE_TARGET_KIND_STRING "App")
-    _juce_configure_bundle(${target} ${target})
+    #_juce_configure_bundle(${target} ${target})
     _juce_configure_app_bundle(${target} ${target})
     # Don't add resources.rc automatically, as we may want to customize it.
     #_juce_add_resources_rc(${target} ${target})
