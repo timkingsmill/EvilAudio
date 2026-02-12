@@ -14,9 +14,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(EvilAudio VERSION 0.1.0 LANGUAGES C CXX)
 
 include(CMakeDependentOption)
+include(CMakePrintHelpers)
 
 # Add the JUCE libaray to CMAKE_PREFIX_PATH for find_package
-set(CMAKE_PREFIX_PATH "/source/EvilAudio/libs/JUCE/install")
+set(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/source/libs/JUCE/install")
 
 # Find the JUCE package.
 # If JUCE is not found, CMake will produce an error.
@@ -49,7 +50,6 @@ endif()
 
 # -----------------------------------------------------------------------------------------------
 
-add_subdirectory(libs)
 add_subdirectory(source)
 
 ##add_subdirectory(docs/doxygen)

@@ -22,8 +22,8 @@ install_manifest.txt
 compile_commands.json
 
 # Ignore the installed library directory
-/libs/JUCE/
-/libs/ASIOSDK
+source/libs/JUCE/
+source/libs/ASIOSDK
 
 external/
 # Ignore the JUCE library directory

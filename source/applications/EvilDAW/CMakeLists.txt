@@ -56,15 +56,21 @@ target_sources(EvilDAW
         application/evil_daw_application_info.h
         application/evil_daw_application_info.cpp
 
-        main_window/evil_daw_main_window.h
-        main_window/evil_daw_main_window.cpp
+        application/evil_daw_application_settings.h
+        application/evil_daw_application_settings.cpp
 
-        main_window/evil_daw_main_window_content.h
-        main_window/evil_daw_main_window_content.cpp
+        windows/main/evil_daw_main_window.h
+        windows/main/evil_daw_main_window.cpp
 
-        main_window/evil_daw_main_window_menu.h
-        main_window/evil_daw_main_window_menu.cpp
-        
+        windows/main/evil_daw_main_window_content.h
+        windows/main/evil_daw_main_window_content.cpp
+
+        windows/main/evil_daw_main_window_menu.h
+        windows/main/evil_daw_main_window_menu.cpp
+       
+        windows/about/evil_daw_about_window.h
+        windows/about/evil_daw_about_window.cpp
+
         include/LiveScrollingAudioVisualiser.h
         include/MainWindowContent.h
         include/AudioSettingsComponent.h
@@ -72,8 +78,6 @@ target_sources(EvilDAW
 
 # Organize source files into groups in Visual Studio.
 get_target_property(target_sources EvilDAW SOURCES)
-
-increment_log_indent()
 
 # Create the Source files group.
 source_group(
@@ -96,5 +100,12 @@ target_link_static_libraries(EvilDAW
     evil::evil_audio_lookandfeel_lib
     evil::evil_audio_eq_lib
 )
+
+#[[
+cmake_print_properties(
+    TARGETS EvilDAW
+    PROPERTIES SOURCES
+)
+    ]]
 
 # -----------------------------------------------------------------------------------------------

@@ -16,6 +16,9 @@ namespace evil
     class EvilDAWApplication final : public juce::JUCEApplication
     {
     public:
+        static EvilDAWApplication& getApp();
+
+    public:
         /**
          * @brief Default constructor for the EvilDAW application.
          */
@@ -62,6 +65,10 @@ namespace evil
         void anotherInstanceStarted(const juce::String& commandLine) override;
 
     private:
+        bool initialiseLogger(const char* filePrefix);
+        void shutdownLogger();
+        std::unique_ptr<juce::FileLogger> logger;
+
         /**
          * @brief Shared pointer to the main application window.
          */

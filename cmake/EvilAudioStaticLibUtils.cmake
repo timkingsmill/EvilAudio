@@ -105,35 +105,15 @@ function (add_juce_module_static_library juce_module)
 
     increment_log_indent()
 
-    # Get the path to the JUCE module parent directory
-    # This is where the module source files are located.
-    # e.g. C:\source\EvilAudio\libs\JUCE\install\include\JUCE-8.0.10\modules\
-    _get_juce_module_path(${juce_module} module_parent_path)
+    _evil_get_module_header_file(${juce_module} module_header_file)
+    message(STATUS "Found the [${juce_module}] module header file: ${module_header_file}")
     
-    # Fail if the path to the module source directory does not exist
-    if(NOT EXISTS "${module_parent_path}")
-        message(FATAL_ERROR "${juce_module} source directory does not exist: ${module_parent_path}")
-    endif()
-    message(STATUS "Found the [${juce_module}] JUCE modules parent directory: ${module_parent_path}")
-    # Check that the module header file exists
-    set(module_header_name "${juce_module}.h")
+    _evil_get_module_path(${juce_module} module_parent_path)
+    message(STATUS "********** Found the [${module_parent_path}] module header file: ${module_header_file} **********")
     
-    # First check for .h extension, then .hpp
-    if(NOT EXISTS "${module_parent_path}/${juce_module}/${module_header_name}")
-        set(module_header_name "${module_header_name}pp")
-    endif()
-
-    # Fail if the module header file does not exist
-    if(NOT EXISTS "${module_parent_path}/${juce_module}/${module_header_name}")
-        message(FATAL_ERROR "${juce_module} Module header does not exist: ${module_parent_path}/${module_header_name}")
-    endif()
-
-    # Found the module header
-    message(STATUS "Found module header: ${module_header_name}")
-
     set(base_path "${module_parent_path}")
-    # Use the JUCE CMake utility function to get the list of module sources and headers.
-    _get_library_sources("${module_parent_path}/${juce_module}" "${base_path}" globbed_sources headers)
+    # Use the EvilAudio CMake utility function to get the list of module sources and headers.
+    _evil_get_module_sources(${juce_module} "${base_path}" globbed_sources headers)
 
     set(all_module_sources)
     list(APPEND all_module_sources ${globbed_sources})
@@ -181,7 +161,7 @@ function (add_juce_module_static_library juce_module)
     # Handle module metadata ---------------------------------------
 
     # Extract module metadata from the module header file
-    _extract_metadata_block(JUCE_MODULE_DECLARATION "${module_parent_path}/${juce_module}/${module_header_name}" metadata_dict)
+    _extract_metadata_block(JUCE_MODULE_DECLARATION "${module_header_file}" metadata_dict)
     if (TARGET ${metadata_dict})
         message(STATUS "\tExtracted metadata for module: ${juce_module} as target: ${metadata_dict}")
     endif()
@@ -268,6 +248,29 @@ function(_add_static_library target sources)
     decrement_log_indent()
 
     target_sources(${target} PRIVATE ${sources})
+endfunction()
+
+#===============================================================================================
+
+function (_evil_get_module_header_file module return_var)
+    get_target_property(module_parent_path ${module} INTERFACE_JUCE_MODULE_PATH)
+        if(NOT module_parent_path STREQUAL "module_path-NOTFOUND")
+            message(STATUS "Found the [${module}] JUCE modules parent directory: ${module_parent_path}")
+        else()
+            message(FATAL_ERROR "Module ${module} does not have a valid INTERFACE_JUCE_MODULE_PATH property.")
+    endif()            
+
+    set(header_file "${module_parent_path}/${module}/${module}.h")
+    if(NOT EXISTS "${header_file}")
+        set(header_file "${header_file}pp")
+    endif()
+
+    if(NOT EXISTS "${header_file}")
+        message(FATAL_ERROR "Module header file not found for module ${module}: ${header_file}")
+    endif()
+
+    set(${return_var} "${header_file}" PARENT_SCOPE)
+
 endfunction()
 
 #===============================================================================================
@@ -384,6 +387,7 @@ endfunction()
 #===============================================================================================
 # Function to strip alias prefix from module name
 # Usage: _strip_alias_prefix(<module_name> <return_var>)
+#
 function (_strip_alias_prefix module_name return_var)
     string(REGEX REPLACE "^[a-zA-Z0-9]+::" "" stripped_name "${module_name}")
     set(${return_var} "${stripped_name}" PARENT_SCOPE)
@@ -391,11 +395,13 @@ endfunction()
 
 #===============================================================================================
 # Function to get the path directory for a given module
-# Usage: _get_juce_module_path(<module_name> <return_var>)
-# Example: _get_juce_module_path(JUCE::juce_core JUCE_CORE_PATH)
-function(_get_juce_module_path module_name return_var)
+# Usage: _evil_get_juce_module_path(<module_name> <return_var>)
+# Example: _evil_get_juce_module_path(JUCE::juce_core JUCE_CORE_PATH)
+#
+function(_evil_get_module_path module_name return_var)
     get_target_property(module_path ${module_name} INTERFACE_JUCE_MODULE_PATH)
     if(NOT module_path STREQUAL "module_path-NOTFOUND")
+        #message(STATUS "Found the [${module_name}] JUCE modules parent directory: ${module_path}")
         set(${return_var} "${module_path}" PARENT_SCOPE)
     else()
         message(FATAL_ERROR "Module ${module_name} does not have a valid INTERFACE_JUCE_MODULE_PATH property.")
@@ -440,16 +446,17 @@ endfunction()
 
 # ================================================================================================    
 
-function(_get_library_sources module_path output_path built_sources other_sources)
-    get_filename_component(module_parent_path ${module_path} DIRECTORY)
-    get_filename_component(module_glob ${module_path} NAME)
+function(_evil_get_module_sources module_name output_path built_sources other_sources)
+    #get_filename_component(module_parent_path ${module_name} DIRECTORY)
+    #get_filename_component(module_name ${module_name} NAME)
+    get_target_property(module_parent_path ${module_name} INTERFACE_JUCE_MODULE_PATH)
 
     file(GLOB_RECURSE all_module_files
         CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
         RELATIVE "${module_parent_path}"
-        "${module_path}/*")
+        "${module_parent_path}/${module_name}/*")
 
-    set(base_path "${module_glob}/${module_glob}")
+    set(base_path "${module_name}/${module_name}")
 
     set(module_cpp ${all_module_files})
     list(FILTER module_cpp INCLUDE REGEX "^${base_path}[^/]*\\.(c|cc|cpp|cxx|s|asm)$")
