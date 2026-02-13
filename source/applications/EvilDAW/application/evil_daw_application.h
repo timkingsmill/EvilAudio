@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include "evil_daw_application_settings.h"
 
 namespace evil
 {
@@ -17,6 +18,7 @@ namespace evil
     {
     public:
         static EvilDAWApplication& getApp();
+        static juce::ApplicationCommandManager& getCommandManager();
 
     public:
         /**
@@ -64,10 +66,18 @@ namespace evil
          */
         void anotherInstanceStarted(const juce::String& commandLine) override;
 
+        EvilDawApplicationSettings& getApplicationSettings();
+
+        juce::PropertiesFile::Options getPropertyFileOptionsFor(const juce::String& filename, bool isProjectSettings);
+
     private:
+        void initCommandManager();
         bool initialiseLogger(const char* filePrefix);
         void shutdownLogger();
-        std::unique_ptr<juce::FileLogger> logger;
+        
+        std::unique_ptr<juce::FileLogger> _logger;
+        std::unique_ptr<EvilDawApplicationSettings> _applicationSettings;
+        std::unique_ptr<juce::ApplicationCommandManager> _commandManager;
 
         /**
          * @brief Shared pointer to the main application window.

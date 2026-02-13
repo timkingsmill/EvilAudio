@@ -1,16 +1,18 @@
 #include "evil_daw_main_window.h"
 #include "evil_daw_main_window_content.h"
+#include "application/evil_daw_application.h"
+#include "application/evil_daw_application_settings.h"
 
 namespace evil
 {
 
 
-EvilDAWMainWindow::EvilDAWMainWindow(const juce::String& name, juce::JUCEApplication& application)
-    : DocumentWindow(name,
-                     juce::Desktop::getInstance().getDefaultLookAndFeel()
-                                                 .findColour(ResizableWindow::backgroundColourId),
-                     DocumentWindow::allButtons),
-     _application(application)
+EvilDAWMainWindow::EvilDAWMainWindow(const juce::String& name, juce::JUCEApplication& application) :
+    DocumentWindow(name,
+                   juce::Desktop::getInstance().getDefaultLookAndFeel()
+                                               .findColour(ResizableWindow::backgroundColourId),
+                   DocumentWindow::allButtons),
+    _application(application)
 {
     setUsingNativeTitleBar(true);
 
@@ -24,12 +26,21 @@ EvilDAWMainWindow::EvilDAWMainWindow(const juce::String& name, juce::JUCEApplica
         setResizeLimits(300, 250, 10000, 10000);
         centreWithSize(getWidth(), getHeight());
     #endif
-    setVisible(true);
+
+    #if ! JUCE_MAC
+        //setMenuBar(EvilDAWApplication::getApp().getMenuModel());
+    #endif
+
+    auto& commandManager = EvilDAWApplication::getCommandManager();
 }
 
-EvilDAWMainWindow::~EvilDAWMainWindow() {
+EvilDAWMainWindow::~EvilDAWMainWindow() 
+{
+    storeWindowPosition();
 
-};
+}
+
+// -----------------------------------------------------------------
 
 void EvilDAWMainWindow::closeButtonPressed()
 {
@@ -39,5 +50,34 @@ void EvilDAWMainWindow::closeButtonPressed()
     _application.systemRequestedQuit();
 }
 
+void EvilDAWMainWindow::restoreWindowPosition()
+{
+    juce::String windowState;
+
+    //if (currentProject != nullptr)
+    //    windowState = currentProject->getStoredProperties().getValue(getProjectWindowPosName());
+
+    auto& p = getGlobalProperties();
+    if (windowState.isEmpty()) {
+        windowState = getGlobalProperties().getValue("lastMainWindowPos");
+    }
+    restoreWindowStateFromString(windowState);
+}
+
+void EvilDAWMainWindow::storeWindowPosition()
+{
+    // save the current size and position to our settings file..
+    getGlobalProperties().setValue("lastMainWindowPos", getWindowStateAsString());
+}
+
+void EvilDAWMainWindow::visibilityChanged()
+{
+    DocumentWindow::visibilityChanged();
+    if (isVisible()) {
+        //addToDesktop();
+        if (!isMinimised())
+            restoreWindowPosition();
+    }
+}
 
 } // namespace evil

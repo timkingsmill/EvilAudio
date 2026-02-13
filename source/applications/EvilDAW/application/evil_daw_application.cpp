@@ -23,13 +23,15 @@ namespace evil
 
     void EvilDAWApplication::initialise(const juce::String& commandLine) 
     {
-        initialiseLogger("evil_daw_log");
-        juce::Logger::writeToLog(juce::SystemStats::getOperatingSystemName());
-
-        //auto compilationDateTime = juce::String(evil_daw_compilationDate) + " " + juce::String(evil_daw_compilationTime);   
-        // This method is where you should put your application's initialisation code..
         juce::ignoreUnused(commandLine);
+
+        initialiseLogger("evil_daw_log");
+        initCommandManager();
+
+        _applicationSettings = std::make_unique<EvilDawApplicationSettings>();
+
         _mainWindow.reset(new evil::EvilDAWMainWindow(getApplicationName(), *this));
+        _mainWindow->setVisible(true);
     };
 
     void EvilDAWApplication::shutdown() {
@@ -51,29 +53,60 @@ namespace evil
         // this method is invoked, and the commandLine parameter tells you what
         // the other instance's command-line arguments were.
         juce::ignoreUnused(commandLine);
-    };
+    }
+
+    juce::PropertiesFile::Options EvilDAWApplication::getPropertyFileOptionsFor(const juce::String& filename, bool isProjectSettings)
+    {
+        juce::PropertiesFile::Options options;
+        options.applicationName = filename;
+        options.filenameSuffix = "settings";
+        options.osxLibrarySubFolder = "Application Support";
+        options.folderName = "EvilDAW";
+        if (isProjectSettings)
+            options.folderName += "/ProjectSettings";
+        return options;
+    }
+
+
+    EvilDawApplicationSettings& EvilDAWApplication::getApplicationSettings()
+    {
+        return *_applicationSettings;
+    }
+    
+    juce::ApplicationCommandManager& EvilDAWApplication::getCommandManager()
+    {
+        auto* cm = EvilDAWApplication::getApp()._commandManager.get();
+        jassert(cm != nullptr);
+        return *cm;
+    }
 
     bool EvilDAWApplication::initialiseLogger(const char* filePrefix)
     {
-        if (logger == nullptr)
+        if (_logger == nullptr)
         {
             // Create a date-stamped logger that writes to a file in 
             // the "evil.audio.logs" folder, with the specified file prefix and a ".txt" extension.
             // On windows, this will typically be located in the user's "AppData\Roaming" folder, 
             // while on macOS it will be in the user's Library/Logs folder.
             juce::String folder = "evil.audio.logs";
-            logger.reset(juce::FileLogger::createDateStampedLogger(folder, filePrefix, ".txt",
+            _logger.reset(juce::FileLogger::createDateStampedLogger(folder, filePrefix, ".txt",
                                             getApplicationName() + " " + getApplicationVersion()
                                             + "  ---  Build date: " __DATE__));
-            juce::Logger::setCurrentLogger(logger.get());
+            juce::Logger::setCurrentLogger(_logger.get());
         }
-        return logger != nullptr;
+        return _logger != nullptr;
+    }
+
+    void EvilDAWApplication::initCommandManager()
+    {
+        _commandManager.reset(new juce::ApplicationCommandManager());
+        _commandManager->registerAllCommandsForTarget(this);
     }
 
     void EvilDAWApplication::shutdownLogger()
     {
         juce::Logger::setCurrentLogger(nullptr);
-        logger.reset();
+        _logger.reset();
     }
 
 } // namespace evil

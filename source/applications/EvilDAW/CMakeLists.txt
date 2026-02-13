@@ -59,6 +59,9 @@ target_sources(EvilDAW
         application/evil_daw_application_settings.h
         application/evil_daw_application_settings.cpp
 
+        settings/evil_daw_appearance_settings.h
+        settings/evil_daw_appearance_settings.cpp
+
         windows/main/evil_daw_main_window.h
         windows/main/evil_daw_main_window.cpp
 
