@@ -21,7 +21,7 @@ evil_audio_add_gui_app(EvilDAW
 # Define preprocessor definitions for this target.
 target_compile_definitions(EvilDAW
     PRIVATE
-        #JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=0
+        JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=0
         DONT_SET_USING_JUCE_NAMESPACE=1
         # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
         JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_gui_app` call
@@ -47,36 +47,7 @@ message(STATUS "Adding target sources for EvilDAW...")
 
 target_sources(EvilDAW
     PRIVATE
-        application/evil_daw_main.h
-        application/evil_daw_main.cpp
-
-        application/evil_daw_application.h
-        application/evil_daw_application.cpp
-
-        application/evil_daw_application_info.h
-        application/evil_daw_application_info.cpp
-
-        application/evil_daw_application_settings.h
-        application/evil_daw_application_settings.cpp
-
-        settings/evil_daw_appearance_settings.h
-        settings/evil_daw_appearance_settings.cpp
-
-        windows/main/evil_daw_main_window.h
-        windows/main/evil_daw_main_window.cpp
-
-        windows/main/evil_daw_main_window_content.h
-        windows/main/evil_daw_main_window_content.cpp
-
-        windows/main/evil_daw_main_window_menu.h
-        windows/main/evil_daw_main_window_menu.cpp
-       
-        windows/about/evil_daw_about_window.h
-        windows/about/evil_daw_about_window.cpp
-
-        include/LiveScrollingAudioVisualiser.h
-        include/MainWindowContent.h
-        include/AudioSettingsComponent.h
+        evil_daw_main.cpp
 )
 
 # Organize source files into groups in Visual Studio.
@@ -94,6 +65,12 @@ source_group(
 # Use include directories instead to make it available for the target's source files.
 #### juce_generate_juce_header(EvilDAW)
 
+target_link_libraries(EvilDAW
+    PRIVATE
+        EvilDAWLib
+)
+
+#[[
 target_link_static_libraries(EvilDAW
     evil::juce_audio_devices_lib    
     evil::juce_audio_utils_lib
@@ -102,12 +79,6 @@ target_link_static_libraries(EvilDAW
     evil::evil_audio_core_lib
     evil::evil_audio_lookandfeel_lib
     evil::evil_audio_eq_lib
-)
-
-#[[
-cmake_print_properties(
-    TARGETS EvilDAW
-    PROPERTIES SOURCES
 )
     ]]
 
