@@ -7,16 +7,16 @@ namespace evil
     EvilDAWMainWindowContent::EvilDAWMainWindowContent() 
     {
         // Setup the command manager.
-        setApplicationCommandManagerToWatch(&_commandManager);
-        _commandManager.setFirstCommandTarget(this);
+        //setApplicationCommandManagerToWatch(&_commandManager);
+        //_commandManager.setFirstCommandTarget(this);
         // Register all commands that this target can perform.
-        _commandManager.registerAllCommandsForTarget(this);
-        addKeyListener(_commandManager.getKeyMappings());
+        //_commandManager.registerAllCommandsForTarget(this);
+        //addKeyListener(_commandManager.getKeyMappings());
 
         // Create the menu bar and add it to the main window.
         // Pass this as the model to the menu bar, so that it can get callbacks when menu items are selected.
-        _mainWindowMenu.reset(new MainWindowMenuBar(this));
-        addAndMakeVisible(_mainWindowMenu.get());
+        //_mainWindowMenu.reset(new MainWindowMenuBar(this));
+        //addAndMakeVisible(_mainWindowMenu.get());
     
         setWantsKeyboardFocus(true);
         setOpaque(true);
@@ -37,8 +37,8 @@ namespace evil
         // update their positions.
         auto bounds = getLocalBounds();
         {
-            _mainWindowMenu->setBounds(bounds.removeFromTop(
-                juce::LookAndFeel::getDefaultLookAndFeel().getDefaultMenuBarHeight()));
+            //_mainWindowMenu->setBounds(bounds.removeFromTop(
+            //    juce::LookAndFeel::getDefaultLookAndFeel().getDefaultMenuBarHeight()));
 
             //_liveScrollingAudioVisualiser->setBounds(bounds.removeFromBottom(32));
             //_parametricEqualizerEditor->setBounds(bounds);
@@ -46,11 +46,14 @@ namespace evil
 
     }
 
+    /***************
     juce::StringArray EvilDAWMainWindowContent::getMenuBarNames()
     {
         return { "File", "Options", "Help" };
     }
+    ****************/
 
+    /*****************
     juce::PopupMenu EvilDAWMainWindowContent::getMenuForIndex(int topLevelMenuIndex, const juce::String& menuName)
     {
         juce::PopupMenu menu;
@@ -84,10 +87,13 @@ namespace evil
         repaint();
         return menu;
     }
+    *****************/
 
+    /*****************
     void EvilDAWMainWindowContent::menuItemSelected(int menuItemID, int topLevelMenuIndex)
     {
     }
+    ******************/
 
     #pragma region ApplicationCommandTarget implementation
 

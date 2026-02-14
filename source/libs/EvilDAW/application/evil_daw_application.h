@@ -1,10 +1,15 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+
 #include "evil_daw_application_settings.h"
+#include "evil_daw_application_menu_model.h"
+
 
 namespace evil
 {
+
+    class EvilDAWApplicationMenuModel;
 
     /**
      * @class EvilDAWApplication
@@ -14,9 +19,14 @@ namespace evil
      * It inherits from juce::JUCEApplication and handles application initialization, shutdown,
      * and instance management. The class is marked as final to prevent further inheritance.
      */
-    class EvilDAWApplication final : public juce::JUCEApplication
+    class EvilDAWApplication final : public juce::JUCEApplication,
+                                     private juce::AsyncUpdater
     {
     public:
+
+        // Friend function declaration
+        friend void EvilDAWApplicationMenuModel::GFG_Function(EvilDAWApplication& app);
+
         static EvilDAWApplication& getApp();
         static juce::ApplicationCommandManager& getCommandManager();
 
@@ -37,6 +47,12 @@ namespace evil
          * @return A juce::String containing the application version.
          */
         const juce::String getApplicationVersion() override;
+
+        /**
+         * @brief Retrieves the menu bar model for the application.
+         * @return A pointer to the juce::MenuBarModel instance used by the application.
+         */
+        juce::MenuBarModel* getMenuBarModel();
 
         /**
          * @brief Determines if multiple instances of the application can run simultaneously.
@@ -71,19 +87,34 @@ namespace evil
         juce::PropertiesFile::Options getPropertyFileOptionsFor(const juce::String& filename, bool isProjectSettings);
 
     private:
+
+        //void globalFocusChanged(juce::Component* focusedComponent) override;
+        juce::PopupMenu& getPopupMenu() 
+        {
+            return * new juce::PopupMenu();
+        };
+
+        void handleAsyncUpdate() override;
+
+
         void initCommandManager();
         bool initialiseLogger(const char* filePrefix);
         void shutdownLogger();
-        
+
         std::unique_ptr<juce::FileLogger> _logger;
         std::unique_ptr<EvilDawApplicationSettings> _applicationSettings;
         std::unique_ptr<juce::ApplicationCommandManager> _commandManager;
+        std::unique_ptr<juce::MenuBarModel> _menuModel;
 
         /**
          * @brief Shared pointer to the main application window.
          */
         std::shared_ptr<juce::DocumentWindow> _mainWindow;
 
+    private:
+        // ------------------------------------------------------------------------------
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EvilDAWApplication)
+        JUCE_DECLARE_WEAK_REFERENCEABLE(EvilDAWApplication)
+        // ------------------------------------------------------------------------------
     };
-
 }

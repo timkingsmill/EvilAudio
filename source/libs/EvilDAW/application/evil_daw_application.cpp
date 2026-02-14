@@ -1,6 +1,8 @@
-#include "evil_daw_application.h"
-#include "windows/main/evil_daw_main_window.h"
 #include <juce_core/juce_core.h>
+
+#include "evil_daw_application.h"
+#include "evil_daw_application_menu_model.h"
+#include "windows/main/evil_daw_main_window.h"
 
 
 // Implemented in juce_core_CompilationTime.cpp
@@ -9,6 +11,15 @@ extern const char* evil_daw_compilationTime;
 
 namespace evil
 {
+
+    void EvilDAWApplicationMenuModel::GFG_Function(EvilDAWApplication& app)
+    {
+        // Call the friend function of EvilDAWApplication
+        app.getPopupMenu();
+        //EvilDAWApplication::friendFunction();
+    }
+
+
     const juce::String EvilDAWApplication::getApplicationName() { return "ProjectInfo::projectName"; }
     const juce::String EvilDAWApplication::getApplicationVersion() { return "ProjectInfo::versionString"; };
 
@@ -30,13 +41,16 @@ namespace evil
 
         _applicationSettings = std::make_unique<EvilDawApplicationSettings>();
 
-        _mainWindow.reset(new evil::EvilDAWMainWindow(getApplicationName(), *this));
-        _mainWindow->setVisible(true);
+        // Do further initialisation in a moment 
+        // when the message loop has started
+        triggerAsyncUpdate();
     };
 
     void EvilDAWApplication::shutdown() {
         // Application's shutdown code here..
-
+        //_menuModel.reset();
+        //_commandManager.reset();
+        //_applicationSettings.reset();
 
 
         shutdownLogger();
@@ -78,6 +92,21 @@ namespace evil
         auto* cm = EvilDAWApplication::getApp()._commandManager.get();
         jassert(cm != nullptr);
         return *cm;
+    }
+
+    juce::MenuBarModel* EvilDAWApplication::getMenuBarModel() 
+    {
+        return _menuModel.get();
+    }
+
+    // This method is called by the message thread at the next convenient time
+    // after the triggerAsyncUpdate() method has been called.
+    void EvilDAWApplication::handleAsyncUpdate()
+    {
+        _menuModel.reset(new EvilDAWApplicationMenuModel());
+        _mainWindow.reset(new evil::EvilDAWMainWindow(getApplicationName(), *this));
+        _mainWindow->setVisible(true);
+
     }
 
     bool EvilDAWApplication::initialiseLogger(const char* filePrefix)

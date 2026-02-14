@@ -48,8 +48,13 @@ target_sources(EvilDAWLib
         application/evil_daw_application_info.h
         application/evil_daw_application_info.cpp
 
+        application/evil_daw_application_menu_model.h
+        application/evil_daw_application_menu_model.cpp
+        
         application/evil_daw_application_settings.h
         application/evil_daw_application_settings.cpp
+
+        commands/evil_daw_commandIDs.h
 
         settings/evil_daw_appearance_settings.h
         settings/evil_daw_appearance_settings.cpp

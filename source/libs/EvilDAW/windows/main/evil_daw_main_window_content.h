@@ -6,8 +6,8 @@ namespace evil
 {
     class EvilDAWMainWindowContent final :
         public juce::ApplicationCommandTarget,
-        public juce::Component,
-        public juce::MenuBarModel
+        public juce::Component //,
+        //public juce::MenuBarModel
     {
     public:
 
@@ -25,14 +25,14 @@ namespace evil
         void resized() override;
 
     private:
-        std::unique_ptr<juce::Component> _mainWindowMenu;
+        //std::unique_ptr<juce::Component> _mainWindowMenu;
 
-        juce::ApplicationCommandManager _commandManager;
+        //juce::ApplicationCommandManager _commandManager;
 
         // Inherited via MenuBarModel
-        juce::StringArray getMenuBarNames() override;
-        juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String& menuName) override;
-        void menuItemSelected(int menuItemID, int topLevelMenuIndex) override;
+        //juce::StringArray getMenuBarNames() override;
+        //juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String& menuName) override;
+        //void menuItemSelected(int menuItemID, int topLevelMenuIndex) override;
 
 #pragma region Inherited via ApplicationCommandTarget
 

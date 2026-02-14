@@ -28,7 +28,7 @@ EvilDAWMainWindow::EvilDAWMainWindow(const juce::String& name, juce::JUCEApplica
     #endif
 
     #if ! JUCE_MAC
-        //setMenuBar(EvilDAWApplication::getApp().getMenuModel());
+        setMenuBar(EvilDAWApplication::getApp().getMenuBarModel());
     #endif
 
     auto& commandManager = EvilDAWApplication::getCommandManager();
