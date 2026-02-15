@@ -8,9 +8,6 @@
 
 namespace evil
 {
-
-    class EvilDAWApplicationMenuModel;
-
     /**
      * @class EvilDAWApplication
      * @brief Main application class for the EvilDAW digital audio workstation.
@@ -23,9 +20,6 @@ namespace evil
                                      private juce::AsyncUpdater
     {
     public:
-
-        // Friend function declaration
-        friend void EvilDAWApplicationMenuModel::GFG_Function(EvilDAWApplication& app);
 
         static EvilDAWApplication& getApp();
         static juce::ApplicationCommandManager& getCommandManager();
@@ -87,15 +81,17 @@ namespace evil
         juce::PropertiesFile::Options getPropertyFileOptionsFor(const juce::String& filename, bool isProjectSettings);
 
     private:
+        // ------------------------------------------------------------------------------
+        // Menu model related methods
+        // Friend function declaration
+        friend juce::StringArray EvilDAWApplicationMenuModel::getMenuBarNames();
+        juce::StringArray getMenuBarNames();
+        friend juce::PopupMenu EvilDAWApplicationMenuModel::getMenuForIndex(int menuIndex, const juce::String& menuName);
+        juce::PopupMenu getMenuForIndex(int menuIndex, const juce::String& menuName);
 
-        //void globalFocusChanged(juce::Component* focusedComponent) override;
-        juce::PopupMenu& getPopupMenu() 
-        {
-            return * new juce::PopupMenu();
-        };
+        // ------------------------------------------------------------------------------
 
         void handleAsyncUpdate() override;
-
 
         void initCommandManager();
         bool initialiseLogger(const char* filePrefix);

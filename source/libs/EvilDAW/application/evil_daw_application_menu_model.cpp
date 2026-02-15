@@ -8,16 +8,19 @@ namespace evil
     { 
     }
 
-    juce::StringArray EvilDAWApplicationMenuModel::getMenuBarNames()
-    {
-        return { "File", "Edit", "View", "Window", "Document", "Tools", "Help" };
-    }
-
     juce::PopupMenu EvilDAWApplicationMenuModel::getMenuForIndex(int menuIndex, const juce::String& menuName)
     {
         // Use a pointer to avoid copying the singleton application instance
         auto& app = EvilDAWApplication::getApp();
-        GFG_Function(app); // Call the friend function with the application instance
-        return juce::PopupMenu();
+        // Call the friend function to get the menu for the specified index and name
+        return app.getMenuForIndex(menuIndex, menuName); 
     }
+
+    juce::StringArray EvilDAWApplicationMenuModel::getMenuBarNames()
+    {
+        // Use a pointer to avoid copying the singleton application instance
+        auto& app = EvilDAWApplication::getApp();
+        return app.getMenuBarNames();
+    }
+
 }

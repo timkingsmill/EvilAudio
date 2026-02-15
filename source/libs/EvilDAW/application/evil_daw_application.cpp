@@ -1,7 +1,6 @@
 #include <juce_core/juce_core.h>
 
 #include "evil_daw_application.h"
-#include "evil_daw_application_menu_model.h"
 #include "windows/main/evil_daw_main_window.h"
 
 
@@ -11,14 +10,6 @@ extern const char* evil_daw_compilationTime;
 
 namespace evil
 {
-
-    void EvilDAWApplicationMenuModel::GFG_Function(EvilDAWApplication& app)
-    {
-        // Call the friend function of EvilDAWApplication
-        app.getPopupMenu();
-        //EvilDAWApplication::friendFunction();
-    }
-
 
     const juce::String EvilDAWApplication::getApplicationName() { return "ProjectInfo::projectName"; }
     const juce::String EvilDAWApplication::getApplicationVersion() { return "ProjectInfo::versionString"; };
@@ -81,7 +72,6 @@ namespace evil
         return options;
     }
 
-
     EvilDawApplicationSettings& EvilDAWApplication::getApplicationSettings()
     {
         return *_applicationSettings;
@@ -99,6 +89,47 @@ namespace evil
         return _menuModel.get();
     }
 
+    juce::StringArray EvilDAWApplication::getMenuBarNames()
+    {
+        return juce::StringArray{ "File", "Edit", "View", "Help" };
+    }
+
+    juce::PopupMenu EvilDAWApplication::getMenuForIndex(int menuIndex, const juce::String& menuName)
+    {
+        juce::PopupMenu popupMenu;
+
+        if (menuName == "File")
+        {
+            popupMenu.addItem(1, "New Project");
+            popupMenu.addItem(2, "Open Project...");
+            popupMenu.addItem(3, "Save Project");
+            popupMenu.addItem(4, "Save Project As...");
+            popupMenu.addSeparator();
+            popupMenu.addItem(5, "Exit");
+        }
+        else if (menuName == "Edit")
+        {
+            popupMenu.addItem(6, "Undo");
+            popupMenu.addItem(7, "Redo");
+            popupMenu.addSeparator();
+            popupMenu.addItem(8, "Cut");
+            popupMenu.addItem(9, "Copy");
+            popupMenu.addItem(10, "Paste");
+        }
+        else if (menuName == "View")
+        {
+            popupMenu.addItem(11, "Toggle Mixer");
+            popupMenu.addItem(12, "Toggle Piano Roll");
+        }
+        else if (menuName == "Help")
+        {
+            popupMenu.addItem(13, "Documentation");
+            popupMenu.addItem(14, "About EvilDAW");
+        } 
+
+        return popupMenu;
+    }
+
     // This method is called by the message thread at the next convenient time
     // after the triggerAsyncUpdate() method has been called.
     void EvilDAWApplication::handleAsyncUpdate()
@@ -106,7 +137,6 @@ namespace evil
         _menuModel.reset(new EvilDAWApplicationMenuModel());
         _mainWindow.reset(new evil::EvilDAWMainWindow(getApplicationName(), *this));
         _mainWindow->setVisible(true);
-
     }
 
     bool EvilDAWApplication::initialiseLogger(const char* filePrefix)

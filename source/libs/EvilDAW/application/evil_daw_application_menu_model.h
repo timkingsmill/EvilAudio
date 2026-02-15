@@ -1,7 +1,6 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
-//#include "evil_daw_application.h"
 
 namespace evil
 {
@@ -27,9 +26,11 @@ namespace evil
          */
         ~EvilDAWApplicationMenuModel() override = default;
 
-        // Change to static so it can be a friend in EvilDAWApplication
-        static void GFG_Function(EvilDAWApplication& app);
-
+        /**
+         * @brief Handles the selection of a menu item.
+         * @param menuItemID The ID of the selected menu item.
+         * @param topLevelMenuIndex The index of the top-level menu that contains the selected item.
+         */
         void menuItemSelected(int menuItemID, int topLevelMenuIndex) override;
 
         /**
