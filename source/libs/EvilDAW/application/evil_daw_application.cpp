@@ -12,10 +12,27 @@ extern const char* evil_daw_compilationTime;
 
 namespace evil
 {
-
+    /**
+     * @brief Returns the application name.
+     * @return A juce::String containing the application name.
+     */
     const juce::String EvilDAWApplication::getApplicationName() { return "ProjectInfo::projectName"; }
+
+    /**
+     * @brief Returns the application version.
+     * @return A juce::String containing the application version.
+     */
     const juce::String EvilDAWApplication::getApplicationVersion() { return "ProjectInfo::versionString"; };
 
+    /**
+     * @brief Retrieves the singleton instance of the EvilDAWApplication.
+     * 
+     * This method provides access to the global application instance.
+     * Asserts if the instance is not available.
+     *
+     * @return A reference to the EvilDAWApplication instance.
+     * @see EvilDAWMainWindow
+     */
     EvilDAWApplication& EvilDAWApplication::getApp()
     {
         EvilDAWApplication* const app = dynamic_cast<EvilDAWApplication*> (JUCEApplication::getInstance());
@@ -23,6 +40,15 @@ namespace evil
         return *app;
     }
 
+    /**
+     * @brief Retrieves the main application window.
+     * 
+     * Returns a reference to the main EvilDAW window. Asserts if the window
+     * is not available.
+     *
+     * @return A reference to the EvilDAWMainWindow instance.
+     * @see EvilDAWMainWindow
+     */
     EvilDAWMainWindow& EvilDAWApplication::getMainWindow()
     {
         auto* window = dynamic_cast<EvilDAWMainWindow*>(EvilDAWApplication::getApp()._mainWindow.get());
@@ -30,8 +56,20 @@ namespace evil
         return *window;
     }
 
+    /**
+     * @brief Determines if multiple instances of the application can run simultaneously.
+     * @return false, as only one instance of EvilDAW is allowed.
+     */
     bool EvilDAWApplication::moreThanOneInstanceAllowed() { return false; }
 
+    /**
+     * @brief Initializes the application on startup.
+     * 
+     * Sets up logger, command manager, application settings, and audio device manager.
+     * Triggers async update to complete initialization after the message loop starts.
+     *
+     * @param commandLine The command line arguments passed to the application.
+     */
     void EvilDAWApplication::initialise(const juce::String& commandLine)
     {
         juce::ignoreUnused(commandLine);
@@ -47,6 +85,11 @@ namespace evil
         triggerAsyncUpdate();
     };
 
+    /**
+     * @brief Performs cleanup operations when the application is shutting down.
+     * 
+     * Resets the audio device manager and shuts down the logger.
+     */
     void EvilDAWApplication::shutdown() {
         // Application's shutdown code here..
         //_menuModel.reset();
@@ -58,12 +101,25 @@ namespace evil
         shutdownLogger();
     };
 
+    /**
+     * @brief Handles system-level requests to quit the application.
+     * 
+     * Called when the OS requests the application to quit. Allows the application
+     * to quit cleanly.
+     */
     void EvilDAWApplication::systemRequestedQuit() {
         // This is called when the app is being asked to quit: you can ignore this
         // request and let the app carry on running, or call quit() to allow the app to close.
         quit();
     };
 
+    /**
+     * @brief Handles the event when another instance of the application is started.
+     * 
+     * Called when another instance of EvilDAW is launched while this one is running.
+     *
+     * @param commandLine The command line arguments passed to the new instance.
+     */
     void EvilDAWApplication::anotherInstanceStarted(const juce::String& commandLine) {
         // When another instance of the app is launched while this one is running,
         // this method is invoked, and the commandLine parameter tells you what
@@ -71,6 +127,15 @@ namespace evil
         juce::ignoreUnused(commandLine);
     }
 
+    /**
+     * @brief Generates property file options for settings persistence.
+     * 
+     * Creates configuration options for saving and loading application or project settings.
+     *
+     * @param filename The base filename for the settings file.
+     * @param isProjectSettings If true, settings are treated as project-specific.
+     * @return A juce::PropertiesFile::Options object configured for the given parameters.
+     */
     juce::PropertiesFile::Options EvilDAWApplication::getPropertyFileOptionsFor(const juce::String& filename, bool isProjectSettings)
     {
         juce::PropertiesFile::Options options;
@@ -83,11 +148,30 @@ namespace evil
         return options;
     }
 
+    /**
+     * @brief Retrieves the application settings.
+     * 
+     * Provides access to the global application settings object.
+     * Asserts if settings are not available.
+     *
+     * @return A reference to the EvilDawApplicationSettings instance.
+     * @see EvilDawApplicationSettings
+     */
     EvilDawApplicationSettings& EvilDAWApplication::getApplicationSettings()
     {
-        return *_applicationSettings;
+        auto* settings = EvilDAWApplication::getApp()._applicationSettings.get();
+        jassert(settings != nullptr);
+        return *settings;
     }
 
+    /**
+     * @brief Retrieves the application command manager.
+     * 
+     * Provides access to the command manager for handling application commands
+     * and keyboard shortcuts. Asserts if the command manager is not available.
+     *
+     * @return A reference to the juce::ApplicationCommandManager instance.
+     */
     juce::ApplicationCommandManager& EvilDAWApplication::getCommandManager()
     {
         auto* cm = EvilDAWApplication::getApp()._commandManager.get();
@@ -95,6 +179,14 @@ namespace evil
         return *cm;
     }
 
+    /**
+     * @brief Retrieves the audio device manager.
+     * 
+     * Provides access to the audio device manager for audio I/O configuration.
+     * Asserts if the device manager is not available.
+     *
+     * @return A reference to the juce::AudioDeviceManager instance.
+     */
     juce::AudioDeviceManager& EvilDAWApplication::getAudioDeviceManager()
     {
         auto* adm = EvilDAWApplication::getApp()._audioDeviceManager.get();
@@ -102,12 +194,14 @@ namespace evil
         return *adm;
     }
 
-    // Here you would add the command IDs of all the commands that your application can perform.
-    // This is used by the ApplicationCommandManager to know which commands are available, and to
-    // enable/disable menu items and buttons based on the state of these commands.
-    //
-    // For example, if you have a command with ID 55, you would add it like this:
-    // commands.add(55);
+    /**
+     * @brief Registers all available commands with the command manager.
+     * 
+     * Called by the ApplicationCommandManager to discover all commands
+     * that the application can perform.
+     *
+     * @param commands Array to be populated with command IDs.
+     */
     void EvilDAWApplication::getAllCommands(juce::Array<juce::CommandID>& commands)
     {
         JUCEApplication::getAllCommands(commands);
@@ -119,6 +213,15 @@ namespace evil
         commands.addArray(ids, length);
     }
 
+    /**
+     * @brief Retrieves information about a specific command.
+     * 
+     * Provides the command description, category, and default keyboard shortcut.
+     * Used by the menu system and command manager.
+     *
+     * @param commandID The ID of the command to query.
+     * @param commandInfo Output parameter to be filled with command information.
+     */
     void EvilDAWApplication::getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo& commandInfo)
     {
         if (commandID == (int)CommandID::Copy)
@@ -137,16 +240,39 @@ namespace evil
         }
     }
 
+    /**
+     * @brief Retrieves the menu bar model.
+     * 
+     * Returns the model that defines the structure of the application's menu bar.
+     *
+     * @return A pointer to the juce::MenuBarModel instance, or nullptr if not available.
+     */
     juce::MenuBarModel* EvilDAWApplication::getMenuBarModel()
     {
         return _menuModel.get();
     }
 
+    /**
+     * @brief Retrieves the names of all top-level menu items.
+     * 
+     * Called by the menu system to determine which menus to display.
+     *
+     * @return A juce::StringArray containing the menu bar names.
+     */
     juce::StringArray EvilDAWApplication::getMenuBarNames()
     {
         return juce::StringArray{ "File", "Edit", "View", "Options", "Help" };
     }
 
+    /**
+     * @brief Generates a popup menu for the given menu bar index.
+     * 
+     * Creates the menu items for the specified menu based on the menu name.
+     *
+     * @param menuIndex The index of the menu bar item.
+     * @param menuName The name of the menu (e.g., "File", "Edit").
+     * @return A juce::PopupMenu containing the menu items.
+     */
     juce::PopupMenu EvilDAWApplication::getMenuForIndex(int menuIndex, const juce::String& menuName)
     {
         auto* registeredInfo = _commandManager->getCommandForID(55);
@@ -198,6 +324,14 @@ namespace evil
         return popupMenu;
     }
 
+    /**
+     * @brief Performs the action associated with a command.
+     * 
+     * Handles the execution of application commands, such as Copy and AudioSettings.
+     *
+     * @param invocationInfo Contains the command ID and invocation details.
+     * @return true if the command was handled, false otherwise.
+     */
     bool EvilDAWApplication::perform(const InvocationInfo& invocationInfo)
     {
         if (invocationInfo.commandID == (int)CommandID::Copy)
@@ -216,8 +350,11 @@ namespace evil
         return JUCEApplication::perform(invocationInfo);
     }
 
-    // This method is called by the message thread at the next convenient time
-    // after the triggerAsyncUpdate() method has been called.
+    /**
+     * @brief Handles deferred initialization after the message loop has started.
+     * 
+     * Creates the menu model and main window, then makes the window visible.
+     */
     void EvilDAWApplication::handleAsyncUpdate()
     {
         _menuModel.reset(new EvilDAWApplicationMenuModel());
@@ -225,10 +362,14 @@ namespace evil
         _mainWindow->setVisible(true);
     }
 
-    /*** Moved from EvilDAWMainWindow to here because it needs to access the audio device manager, and it's more logical to have it in the application class. 
-    ***/
-    
-
+    /**
+     * @brief Displays the audio settings dialog window.
+     * 
+     * Creates and shows a modal dialog for configuring audio device settings.
+     * On close, saves the audio device state to application settings.
+     * 
+     * @see EvilDAWAudioSettingsEditor
+     */
     void EvilDAWApplication::showAudioSettings()
     {
         auto* settingsComponent = new EvilDAWAudioSettingsEditor(*_audioDeviceManager);
@@ -260,13 +401,27 @@ namespace evil
             ), true);
     }
     
-
+    /**
+     * @brief Initializes the application settings object.
+     * 
+     * Creates and configures the EvilDawApplicationSettings instance.
+     * 
+     * @see EvilDawApplicationSettings
+     */
     void EvilDAWApplication::initialiseApplicatiomSettings()
     {
         _applicationSettings = std::make_unique<EvilDawApplicationSettings>();
-
     }
 
+    /**
+     * @brief Initializes the file logger.
+     * 
+     * Creates a date-stamped logger that writes to a file in the application logs directory.
+     * On Windows, logs are stored in AppData\Roaming; on macOS, in Library/Logs.
+     *
+     * @param filePrefix The prefix for the log filename.
+     * @return true if the logger was successfully initialized, false otherwise.
+     */
     bool EvilDAWApplication::initialiseLogger(const char* filePrefix)
     {
         if (_logger == nullptr)
@@ -284,20 +439,39 @@ namespace evil
         return _logger != nullptr;
     }
 
+    /**
+     * @brief Initializes the command manager.
+     * 
+     * Creates the ApplicationCommandManager and registers all available commands.
+     */
     void EvilDAWApplication::initialiseCommandManager()
     {
         _commandManager.reset(new juce::ApplicationCommandManager());
         _commandManager->registerAllCommandsForTarget(this);
     }
 
+    /**
+    * @brief Initializes the audio device manager.
+    *
+    * Creates the AudioDeviceManager and loads the previously saved audio device state
+    * from application settings, or initializes with default devices.
+    * On Windows, this enables ASIO driver support if available.
+    */
     void EvilDAWApplication::initialiseDeviceManager()
     {
         // Initialize audio device manager
         auto deviceSettings = getApp().getApplicationSettings().getGlobalProperties().getXmlValue("audioDeviceState");
         _audioDeviceManager = std::make_unique<juce::AudioDeviceManager>();
+        // Create audio device types (includes ASIO on Windows if configured)
+        //_audioDeviceManager->createAudioDeviceTypes();
         _audioDeviceManager->initialise(256, 256, deviceSettings.get(), true);
     }
 
+    /**
+     * @brief Shuts down the file logger.
+     * 
+     * Removes the current logger and resets the logger instance.
+     */
     void EvilDAWApplication::shutdownLogger()
     {
         juce::Logger::setCurrentLogger(nullptr);

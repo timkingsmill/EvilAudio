@@ -52,7 +52,7 @@ target_compile_definitions(EvilEQPlugin
 
 target_link_libraries(EvilEQPlugin
     PRIVATE
-        evilaudio::evilaudio_eq
+        evil::evil_audio_eq
 )       
 
 target_link_libraries(EvilEQPlugin

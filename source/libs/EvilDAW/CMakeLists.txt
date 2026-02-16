@@ -22,6 +22,13 @@ target_compile_definitions(EvilDAWLib
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
 )
 
+if(JUCE_ASIO_SUPPORT)
+    message(STATUS "Enabling ASIO support for EvilDAWLib")
+    message(STATUS "ASIO_SDK_DIR is set to: ${ASIO_SDK_DIR}")
+    target_compile_definitions(EvilDAWLib PUBLIC JUCE_ASIO=1)
+    target_include_directories(EvilDAWLib PUBLIC "${ASIO_SDK_DIR}")
+endif()
+
 # Set the include directories for this target.
 # Note: The `include` directory is added as a private include 
 # directory, which means that it will only be used when 

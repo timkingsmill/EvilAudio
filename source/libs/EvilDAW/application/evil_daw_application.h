@@ -24,6 +24,7 @@ namespace evil
     public:
         static EvilDAWApplication& getApp();
         static EvilDAWMainWindow& getMainWindow();
+        static EvilDawApplicationSettings& getApplicationSettings();
         static juce::ApplicationCommandManager& getCommandManager();
         static juce::AudioDeviceManager& getAudioDeviceManager();
 
@@ -82,7 +83,6 @@ namespace evil
         // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
         // ToDo change this to a static method that returns a reference to the settings object
 
-        EvilDawApplicationSettings& getApplicationSettings();
 
         juce::PropertiesFile::Options getPropertyFileOptionsFor(const juce::String& filename, bool isProjectSettings);
 
@@ -101,6 +101,13 @@ namespace evil
 
         void initialiseApplicatiomSettings();
         void initialiseCommandManager();
+
+        /**
+        * @brief Initializes the audio device manager.
+        *
+        * Creates the AudioDeviceManager with ASIO support on Windows (if ASIO SDK is available).
+        * Loads previously saved audio device state from application settings.
+        */
         void initialiseDeviceManager();
         bool initialiseLogger(const char* filePrefix);
 
