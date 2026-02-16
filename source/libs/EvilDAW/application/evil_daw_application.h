@@ -1,9 +1,11 @@
 #pragma once
 
+#include <juce_audio_devices/juce_audio_devices.h> 
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include "evil_daw_application_settings.h"
 #include "evil_daw_application_menu_model.h"
+#include "windows/main/evil_daw_main_window.h"
 
 
 namespace evil
@@ -20,9 +22,10 @@ namespace evil
                                      private juce::AsyncUpdater
     {
     public:
-
         static EvilDAWApplication& getApp();
+        static EvilDAWMainWindow& getMainWindow();
         static juce::ApplicationCommandManager& getCommandManager();
+        static juce::AudioDeviceManager& getAudioDeviceManager();
 
     public:
         /**
@@ -76,6 +79,9 @@ namespace evil
          */
         void anotherInstanceStarted(const juce::String& commandLine) override;
 
+        // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+        // ToDo change this to a static method that returns a reference to the settings object
+
         EvilDawApplicationSettings& getApplicationSettings();
 
         juce::PropertiesFile::Options getPropertyFileOptionsFor(const juce::String& filename, bool isProjectSettings);
@@ -93,14 +99,24 @@ namespace evil
 
         void handleAsyncUpdate() override;
 
-        void initCommandManager();
+        void initialiseApplicatiomSettings();
+        void initialiseCommandManager();
+        void initialiseDeviceManager();
         bool initialiseLogger(const char* filePrefix);
+
+        void getAllCommands(juce::Array<juce::CommandID>&) override;
+        void getCommandInfo(juce::CommandID, juce::ApplicationCommandInfo&) override;
+        bool perform(const InvocationInfo&) override;
+
         void shutdownLogger();
+
+        void showAudioSettings();
 
         std::unique_ptr<juce::FileLogger> _logger;
         std::unique_ptr<EvilDawApplicationSettings> _applicationSettings;
         std::unique_ptr<juce::ApplicationCommandManager> _commandManager;
         std::unique_ptr<juce::MenuBarModel> _menuModel;
+        std::unique_ptr<juce::AudioDeviceManager> _audioDeviceManager;
 
         /**
          * @brief Shared pointer to the main application window.

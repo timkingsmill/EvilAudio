@@ -59,6 +59,9 @@ target_sources(EvilDAWLib
         settings/evil_daw_appearance_settings.h
         settings/evil_daw_appearance_settings.cpp
 
+        settings/editors/evil_daw_audio_settings_editor.h
+        settings/editors/evil_daw_audio_settings_editor.cpp
+        
         windows/main/evil_daw_main_window.h
         windows/main/evil_daw_main_window.cpp
 
@@ -71,9 +74,8 @@ target_sources(EvilDAWLib
         windows/about/evil_daw_about_window.h
         windows/about/evil_daw_about_window.cpp
 
-        include/LiveScrollingAudioVisualiser.h
-        include/MainWindowContent.h
-        include/AudioSettingsComponent.h
+        #include/LiveScrollingAudioVisualiser.h
+        #include/MainWindowContent.h
 )
 
 # Organize source files into groups in Visual Studio.

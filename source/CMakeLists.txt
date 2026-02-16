@@ -7,16 +7,11 @@ add_subdirectory(libs)
 # Include folder for EvilAudio custom juce type modules.
 add_subdirectory(modules)
 
-# Dont buiild this example by default. (Will only be used for testing purposes)
-#add_subdirectory(applications/EvilStaticLibraryClient)
 
-#[[
-add_subdirectory(examples/equalizer)
-add_subdirectory(plugins/EvilEQPlugin)
-]]
+#add_subdirectory(examples/equalizer)
+
 
 add_subdirectory(applications/EvilDAW)
 #add_subdirectory(applications/EvilEQ)
 #add_subdirectory(applications/EvilLookAndFeel)
-#add_subdirectory(applications/EvilPluginHost)
 

@@ -259,7 +259,7 @@ private:
         juce::DialogWindow::LaunchOptions options;
 
         // Create the content component to go inside the dialog window.
-        AudioSettingsComponent* audioSettingsComponent = new AudioSettingsComponent(*_audioDeviceManager);
+        EvilDAWAudioSettingsEditor* audioSettingsComponent = new EvilDAWAudioSettingsEditor(*_audioDeviceManager);
         // The dialog takes ownership of the content component, so use setOwned().
         options.content.setOwned(audioSettingsComponent);
         options.dialogTitle = "Audio Settings";

@@ -1,7 +1,6 @@
 #include "evil_daw_main_window.h"
 #include "evil_daw_main_window_content.h"
 #include "application/evil_daw_application.h"
-#include "application/evil_daw_application_settings.h"
 
 namespace evil
 {
@@ -70,6 +69,9 @@ void EvilDAWMainWindow::storeWindowPosition()
     getGlobalProperties().setValue("lastMainWindowPos", getWindowStateAsString());
 }
 
+// ToDo - we should probably also save the window position when the app is closed by the OS, or when the user logs out, etc. We can do this by overriding the appropriate methods in the JUCEApplication class, and calling storeWindowPosition() from there.
+// ToDo - we should also consider saving the window position more frequently, such as when the user moves or resizes the window, to ensure that we always have the most up-to-date position saved. We can do this by overriding the appropriate methods in the DocumentWindow class, and calling storeWindowPosition() from there.
+// ToDo - we should also consider saving the window position for each project separately, so that when the user opens a project, the window is restored to the position it was in when that project was last closed. We can do this by storing the window position in the project's properties, and restoring it from there when the project is opened.
 void EvilDAWMainWindow::visibilityChanged()
 {
     DocumentWindow::visibilityChanged();

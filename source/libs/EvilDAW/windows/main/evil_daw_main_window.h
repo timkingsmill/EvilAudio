@@ -12,14 +12,11 @@ namespace evil
                                          juce::JUCEApplication& application);
         ~EvilDAWMainWindow() override;
   
-        void closeButtonPressed() override;
-
     private:
+        void closeButtonPressed() override;
         void restoreWindowPosition();
         void storeWindowPosition();
         void visibilityChanged() override;
-
-
 
         juce::JUCEApplication& _application;
         std::unique_ptr<juce::Component> _mainWindowContent;
