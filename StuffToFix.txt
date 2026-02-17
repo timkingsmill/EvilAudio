@@ -1,0 +1,9 @@
+    static bool isBlacklistedDriver (const String& driverName)
+    {
+//        return driverName.startsWith ("ASIO DirectX Full Duplex") || driverName == "ASIO Multimedia Driver";
+        return driverName.startsWith("ASIO DirectX Full Duplex")
+            || driverName == "ASIO Multimedia Driver"
+            || driverName.containsIgnoreCase("Steinberg built-in")
+            || driverName.containsIgnoreCase("asiobtin");
+
+    }

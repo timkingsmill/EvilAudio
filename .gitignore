@@ -29,3 +29,4 @@ external/
 # Ignore the JUCE library directory
 external/JUCE/
 
+StuffToFix.txt.bak
