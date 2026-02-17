@@ -1,4 +1,4 @@
-#ifdef EVIL_AUDIO_CORE_H_INCLUDED
+#ifdef EVILAUDIO_EQ_H_INCLUDED
     /* 
     When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
@@ -8,7 +8,7 @@
     #error "Incorrect use of EvilAudio module cpp file"
 #endif
 
-#include "evil_audio_core.h"
+#include "evilaudio_eq.h"
 
-//#include "eq/ParametricEqualiserEditor.cpp"   
-//#include "eq/ParametricEqualiserProcessor.cpp"
+#include "eq/ParametricEqualiserEditor.cpp"   
+#include "eq/ParametricEqualiserProcessor.cpp"

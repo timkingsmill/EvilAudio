@@ -7,11 +7,10 @@
 
  BEGIN_JUCE_MODULE_DECLARATION
 
-  ID:                 evil_audio_lookandfeel
-  vendor:             evil_audio
+  ID:                 evilaudio_eq
+  vendor:             evilaudio
   version:            8.0.10
-  name:               Evil Audio Look and Feel
-  license:            AGPLv3/Commercial
+  name:               Evil Audio Equaliser
   minimumCppStandard: 17
 
   dependencies:       juce_gui_basics
@@ -19,10 +18,12 @@
   iOSFrameworks:      Accelerate
 
  END_JUCE_MODULE_DECLARATION
-
 ****************************************************************************/
 
-#pragma once
-#define EVIL_AUDIO_LOOKANDFEEL_H_INCLUDED
 
-#include "lookandfeel/evil_audio_LookAndFeel.h"
+#pragma once
+
+#define EVILAUDIO_EQ_H_INCLUDED
+
+#include "eq/ParametricEqualiserEditor.h"
+#include "eq/ParametricEqualiserProcessor.h"

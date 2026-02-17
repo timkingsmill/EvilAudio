@@ -17,11 +17,18 @@ include(CMakeDependentOption)
 include(CMakePrintHelpers)
 
 # Add the JUCE libaray to CMAKE_PREFIX_PATH for find_package
-set(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/source/libs/JUCE/install")
+
+# Don't use any install targets for JUCE, as we want to use the CMake 
+# configuration provided by JUCE, but we don't want to install JUCE itself.
+##set(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/source/libs/JUCE/install")
 
 # Find the JUCE package.
 # If JUCE is not found, CMake will produce an error.
-find_package(JUCE CONFIG REQUIRED)  
+
+# Don't use any install targets for JUCE, as we want to 
+# use the CMake configuration provided by JUCE, but we don't want to install JUCE itself. 
+##find_package(JUCE CONFIG REQUIRED)  
+add_subdirectory(external/JUCE)
 
 # Add custom CMake functions for Evil Audio.
 include(cmake/EvilAudio.cmake)

@@ -46,9 +46,9 @@ target_link_static_libraries(EvilEQ
     evil::juce_dsp_lib
 
     # EvilAudio static libraries
-    evil::evil_audio_core_lib
-    evil::evil_audio_lookandfeel_lib
-    evil::evil_audio_eq_lib
+    evil::evilaudio_core_lib
+    evil::evilaudio_lookandfeel_lib
+    evil::evilaudio_eq_lib
 )
 
 # =================================================================================================

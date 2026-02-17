@@ -15,8 +15,6 @@ CONTENTS:
     - Helper functions:
         _add_static_library()              - Creates static library target
         _extract_metadata_block()          - Parses metadata from module headers
-        _evil_link_libs_from_metadata()    - Links platform libraries from metadata
-        _add_standard_defs()               - Applies standard JUCE definitions
         _strip_alias_prefix()              - Removes namespace prefixes
         _get_juce_module_path()            - Resolves the path to the to the modules directory target
         _evil_get_metadata()               - Fetches metadata properties
@@ -82,7 +80,6 @@ Dependencies:
     - _strip_alias_prefix()
     - _get_juce_module_path()
     - _add_static_library()
-    - _add_standard_defs()
 
 Special Cases:
     - juce_core: Adds atomic wrapper, execinfo on BSD, Android NDK sources on Android
@@ -181,25 +178,39 @@ function (add_juce_module_static_library juce_module)
     #else
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
+
             if(juce_module MATCHES "juce_gui_basics|juce_audio_processors|juce_core|juce_graphics")
-                message(STATUS "\tAdding /bigobj compile option to ${lib_target} to avoid C1128 errors")
+                message(STATUS "Adding /bigobj compile option to ${lib_target} to avoid C1128 errors")
                 target_compile_options(${lib_target} PUBLIC /bigobj)
             endif()
-
-            # Link Windows-specific libraries from metadata extracted from the JUCE module header.
-            ##################_evil_link_libs_from_metadata("${juce_module}" "${metadata_dict}" windowsLibs)
+            
+            if(juce_module MATCHES "juce_audio_devices")
+                if(JUCE_ASIO_SUPPORT)
+                    message(STATUS "Enabling ASIO support for ${lib_target}")
+                    message(STATUS "ASIO_SDK_DIR is set to: ${ASIO_SDK_DIR}")
+                    target_compile_definitions(${lib_target} PUBLIC JUCE_ASIO=1)
+                    target_include_directories(${lib_target} PUBLIC "${ASIO_SDK_DIR}")
+                endif()
+            endif()
         endif()
     endif()
 
-    # Handle module dependencies extracted from metadata.
-    #
+    increment_log_indent()
+
     _evil_get_metadata("${metadata_dict}" dependencies module_dependencies)
     foreach(module IN LISTS module_dependencies)
+        # Get the name of the static library target for the dependency module.
+        
+        #string(REPLACE "juce" "evilaudio" OUTPUT_STRING ${module})
         # Get the static library target name for the dependency.
-        set(dependency_target "${module}_lib")
-        message(STATUS "\tLinking dependency target: ${dependency_target} to ${lib_target}")
-        target_link_libraries(${lib_target} PRIVATE ${dependency_target})
+        set(dependency_lib "${module}_lib")
+        
+        
+        message(STATUS "Linking ${lib_target} library with: ${dependency_lib} from module dependency: ${module}")
+        target_link_libraries(${lib_target} PRIVATE ${dependency_lib})
     endforeach()
+
+    decrement_log_indent()
 
     # Set standard JUCE compile definitions for the static library target.
     # These are required for proper JUCE module functionality.
@@ -359,29 +370,6 @@ function(_extract_metadata_block delim_str file_with_block out_dict)
         )
     endforeach()
     decrement_log_indent()
-endfunction()
-
-#===============================================================================================
-
-function(_evil_link_libs_from_metadata module_name dict key)
-    _evil_get_metadata("${dict}" "${key}" libs)
-    if(libs)
-        foreach(lib IN LISTS libs)
-            message(STATUS "\tLinking ${lib} to ${module_name}_lib from metadata")
-            target_link_libraries("${module_name}_lib" PRIVATE  "${lib}")
-        endforeach()
-    endif()
-endfunction()
-
-#===============================================================================================
-
-function(_add_standard_defs lib_target)
-    _juce_get_debug_config_genex(debug_config)
-
-    target_compile_definitions(${lib_target} INTERFACE
-        JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
-        $<IF:${debug_config},DEBUG=1 _DEBUG=1,NDEBUG=1 _NDEBUG=1>
-        $<$<PLATFORM_ID:Android>:JUCE_ANDROID=1>)
 endfunction()
 
 #===============================================================================================

@@ -6,14 +6,16 @@ set(CMAKE_FOLDER ${PROJECT_NAME}/libs/evilaudio)
 # libraries for EvilAudio.
 juce_add_modules(
     ALIAS_NAMESPACE evil
-    evil_audio_core
-    evil_audio_eq
-    evil_audio_lookandfeel
+    evilaudio_core
+    ##evilaudio_audio_devices
+    evilaudio_lookandfeel
+    evilaudio_eq
 )
 
 # Create static libraries for the custom JUCE interface modules.
-add_juce_module_static_library(evil::evil_audio_core)
-add_juce_module_static_library(evil::evil_audio_eq) 
-add_juce_module_static_library(evil::evil_audio_lookandfeel)
+add_juce_module_static_library(evil::evilaudio_core)
+##add_juce_module_static_library(evil::evilaudio_audio_devices)
+add_juce_module_static_library(evil::evilaudio_lookandfeel)
+add_juce_module_static_library(evil::evilaudio_eq) 
 
 

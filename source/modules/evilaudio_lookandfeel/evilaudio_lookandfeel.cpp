@@ -1,4 +1,4 @@
-#ifdef EVIL_AUDIO_LOOKANDFEEL_H_INCLUDED
+#ifdef EVILAUDIO_LOOKANDFEEL_H_INCLUDED
     /* 
     When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
@@ -8,6 +8,6 @@
     #error "Incorrect use of EvilAudio module cpp file"
 #endif
 
-#include "evil_audio_lookandfeel.h"
+#include "evilaudio_lookandfeel.h"
 
 #include "lookandfeel/evil_audio_LookAndFeel.cpp"

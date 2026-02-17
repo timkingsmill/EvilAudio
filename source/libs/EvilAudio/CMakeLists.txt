@@ -6,6 +6,7 @@ cmake_path(GET parent_path FILENAME parent_folder_name)
 set(CMAKE_FOLDER ${PROJECT_NAME}/${parent_folder_name}/juce) #${current_file_name})
 
 # Create static libraries for JUCE modules.
+
 add_juce_module_static_library(juce::juce_core)
 add_juce_module_static_library(juce::juce_audio_basics)
 add_juce_module_static_library(juce::juce_audio_devices)
@@ -19,3 +20,4 @@ add_juce_module_static_library(juce::juce_events)
 add_juce_module_static_library(juce::juce_graphics)
 add_juce_module_static_library(juce::juce_gui_basics)
 add_juce_module_static_library(juce::juce_gui_extra)
+

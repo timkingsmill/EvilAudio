@@ -62,7 +62,6 @@ source_group(
 )
 
 # Don't need to specify the juce header file for this.
-# Use include directories instead to make it available for the target's source files.
 #### juce_generate_juce_header(EvilDAW)
 
 target_link_libraries(EvilDAW
