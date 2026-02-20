@@ -98,14 +98,14 @@ source_group(
 
 target_link_libraries(EvilDAWLib
     PUBLIC
-        evil::juce_audio_devices_lib    
-        evil::juce_audio_utils_lib
-        evil::juce_dsp_lib
+        evil_audio_devices
+        evil_audio_utils
+        evil_dsp
         
     PRIVATE
-        evil::evilaudio_core_lib
-        evil::evilaudio_lookandfeel_lib
-        evil::evilaudio_eq_lib
+        #evil::evilaudio_core_lib
+        #evil::evilaudio_lookandfeel_lib
+        #evil::evilaudio_eq_lib
 )
 
 # -----------------------------------------------------------------------------------------------

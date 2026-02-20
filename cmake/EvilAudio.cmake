@@ -17,7 +17,8 @@ include(cmake/EvilAudioApplicationUtils.cmake)
 
 # =================================================================================
 # Utility functions for linking Evil Audio static libraries to an application.
-include(cmake/EvilAudioStaticLibUtils.cmake)
+# DEPRICATED: This is no longer needed since we can link JUCE modules directly to the application target.
+###include(cmake/EvilAudioStaticLibUtils.cmake)
 
 # =================================================================================
 # Formats given string with colors and writes the result in

@@ -1,2 +1,2 @@
 add_subdirectory(EvilAudio)
-add_subdirectory(EvilDAW)
+add_subdirectory(evil_daw_lib)
