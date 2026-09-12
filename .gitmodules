@@ -1,0 +1,9 @@
+[submodule "external/JUCE"]
+	path = external/JUCE
+	url = https://github.com/timkingsmill/JUCE.git
+	ignore = dirty
+
+[submodule "docs/C4-PlantUML"]
+	path = docs/C4-PlantUML
+	url = https://github.com/timkingsmill/C4-PlantUML.git
+	ignore = dirty

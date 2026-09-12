@@ -1,0 +1,156 @@
+# Ignore Visual Studio files
+/.vs/
+/.vscode/launch.json
+/.vscode/tasks.json
+/.venv/
+
+# Ignore the build directory
+
+# Ignore graphwiz documentation output directories
+/docs/graphwiz/
+/docs/evil_audio_api/
+
+# CMake build output directories
+/build/
+/cmake-build*/
+out/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+cmake_test_discovery*.json
+Makefile
+install_manifest.txt
+compile_commands.json
+
+# Ignore the installed library directory
+#source/libs/JUCE*/
+source/libs/ASIOSDK
+
+external/plantUML/
+# Ignore the JUCE library directory
+external/JUCE/
+
+
+docs/puml/C4-PlantUML/.gitattributes
+docs/puml/C4-PlantUML/.gitignore
+docs/puml/C4-PlantUML/C4_Component.puml
+docs/puml/C4-PlantUML/C4_Container.puml
+docs/puml/C4-PlantUML/C4_Context.puml
+docs/puml/C4-PlantUML/C4_Deployment.puml
+docs/puml/C4-PlantUML/C4_Dynamic.puml
+docs/puml/C4-PlantUML/C4_Sequence.puml
+docs/puml/C4-PlantUML/C4.puml
+docs/puml/C4-PlantUML/LayoutOptions.md
+docs/puml/C4-PlantUML/LICENSE
+docs/puml/C4-PlantUML/README.md
+docs/puml/C4-PlantUML/Themes.md
+docs/puml/C4-PlantUML/.github/stale.yml
+docs/puml/C4-PlantUML/.github/workflows/run-percy-tests.yml
+docs/puml/C4-PlantUML/.scripts/HowToCreateANewRelease.md
+docs/puml/C4-PlantUML/.scripts/plantuml-stdlib_C4_README.txt
+docs/puml/C4-PlantUML/.scripts/plantuml-stdlib_README_section.txt
+docs/puml/C4-PlantUML/.scripts/readme_release_header.txt
+docs/puml/C4-PlantUML/.scripts/transform_files.py
+docs/puml/C4-PlantUML/images/intellij_c4plantum_live_template1.gif
+docs/puml/C4-PlantUML/images/intellij_c4plantum_live_template2.gif
+docs/puml/C4-PlantUML/images/vscode_c4plantuml_snippets.gif
+docs/puml/C4-PlantUML/intellij/c4_live_template.zip
+docs/puml/C4-PlantUML/percy/C4_Component Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/percy/C4_Container Diagram Sample - bigbankplc-icons.puml
+docs/puml/C4-PlantUML/percy/C4_Container Diagram Sample - bigbankplc-newStyle.puml
+docs/puml/C4-PlantUML/percy/C4_Container Diagram Sample - bigbankplc-styles.puml
+docs/puml/C4-PlantUML/percy/C4_Container Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/percy/C4_Container Diagram Sample - message bus.puml
+docs/puml/C4-PlantUML/percy/C4_Container Diagram Sample - techtribesjs.puml
+docs/puml/C4-PlantUML/percy/C4_Context Diagram Sample - bigbankplc-landscape.puml
+docs/puml/C4-PlantUML/percy/C4_Context Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/percy/C4_Context Diagram Sample - enterprise.puml
+docs/puml/C4-PlantUML/percy/C4_Deployment Diagram Sample - bigbankplc-details.puml
+docs/puml/C4-PlantUML/percy/C4_Deployment Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/percy/C4_Dynamic Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/percy/C4_Sequence Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/percy/TestAllAddTags.puml
+docs/puml/C4-PlantUML/percy/TestAllElementsWithLegend.puml
+docs/puml/C4-PlantUML/percy/TestAllPlantUmlElements.puml
+docs/puml/C4-PlantUML/percy/TestBoundaryTagSupport.puml
+docs/puml/C4-PlantUML/percy/TestEmptyLabel.puml
+docs/puml/C4-PlantUML/percy/TestFloatingLegend.puml
+docs/puml/C4-PlantUML/percy/TestLabelsWithLineBreak.puml
+docs/puml/C4-PlantUML/percy/TestLayDirections.puml
+docs/puml/C4-PlantUML/percy/TestLayoutLandscape.puml
+docs/puml/C4-PlantUML/percy/TestLayoutLandscapeDynamic.puml
+docs/puml/C4-PlantUML/percy/TestLayoutLandscapeWithLay.puml
+docs/puml/C4-PlantUML/percy/TestLayoutLandscapeWithLayNoRotate.puml
+docs/puml/C4-PlantUML/percy/TestLegend.puml
+docs/puml/C4-PlantUML/percy/TestLegendDetailsNone.puml
+docs/puml/C4-PlantUML/percy/TestLegendDetailsNormal.puml
+docs/puml/C4-PlantUML/percy/TestLegendDetailsSmall.puml
+docs/puml/C4-PlantUML/percy/TestLegendHidden.puml
+docs/puml/C4-PlantUML/percy/TestLegendSprite.puml
+docs/puml/C4-PlantUML/percy/TestLegendTitle.puml
+docs/puml/C4-PlantUML/percy/TestNewStyle.puml
+docs/puml/C4-PlantUML/percy/TestPersonOutline.puml
+docs/puml/C4-PlantUML/percy/TestPersonPortrait.puml
+docs/puml/C4-PlantUML/percy/TestPredefinedSprites.puml
+docs/puml/C4-PlantUML/percy/TestProperty.puml
+docs/puml/C4-PlantUML/percy/TestPropertyMissingColumns.puml
+docs/puml/C4-PlantUML/percy/TestRelations.puml
+docs/puml/C4-PlantUML/percy/TestRelationsDynamic.puml
+docs/puml/C4-PlantUML/percy/TestRelationsTags.puml
+docs/puml/C4-PlantUML/percy/TestSequenceSkinparams.puml
+docs/puml/C4-PlantUML/percy/TestSketchStyle.puml
+docs/puml/C4-PlantUML/percy/TestSystemPersonSupportType.puml
+docs/puml/C4-PlantUML/percy/TestTagSupportsSprite.puml
+docs/puml/C4-PlantUML/percy/TestTagSupportsSpriteTechn.puml
+docs/puml/C4-PlantUML/percy/TestThemeC4_All.puml
+docs/puml/C4-PlantUML/percy/TestThemeC4_FirstTest.puml
+docs/puml/C4-PlantUML/percy/TestThemeC4_united.puml
+docs/puml/C4-PlantUML/percy/TestThemeSupport.puml
+docs/puml/C4-PlantUML/percy/TestThemeTemplate.puml
+docs/puml/C4-PlantUML/percy/TestVersion.puml
+docs/puml/C4-PlantUML/samples/C4_Component Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/samples/C4_Container Diagram Sample - bigbankplc-icons.puml
+docs/puml/C4-PlantUML/samples/C4_Container Diagram Sample - bigbankplc-styles.puml
+docs/puml/C4-PlantUML/samples/C4_Container Diagram Sample - bigbankplc-themes.puml
+docs/puml/C4-PlantUML/samples/C4_Container Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/samples/C4_Container Diagram Sample - message bus.puml
+docs/puml/C4-PlantUML/samples/C4_Container Diagram Sample - techtribesjs.puml
+docs/puml/C4-PlantUML/samples/C4_Context Diagram Sample - bigbankplc-landscape.puml
+docs/puml/C4-PlantUML/samples/C4_Context Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/samples/C4_Context Diagram Sample - enterprise.puml
+docs/puml/C4-PlantUML/samples/C4_Deployment Diagram Sample - bigbankplc-details.puml
+docs/puml/C4-PlantUML/samples/C4_Deployment Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/samples/C4_Dynamic Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/samples/C4_Dynamic Diagram Sample - message bus - old format.puml
+docs/puml/C4-PlantUML/samples/C4_Dynamic Diagram Sample - message bus.puml
+docs/puml/C4-PlantUML/samples/C4_Sequence Diagram Sample - bigbankplc.puml
+docs/puml/C4-PlantUML/samples/C4_Sequence Diagram Sample - complex.puml
+docs/puml/C4-PlantUML/samples/C4CoreDiagrams.md
+docs/puml/C4-PlantUML/themes/puml-theme-C4_blue_new.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_blue.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_brown_new.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_brown.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_FirstTest.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_green_new.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_green.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_sandstone.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_superhero.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_united.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_violet_new.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4_violet.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_chinese.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_danish.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_dutch.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_english.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_french.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_german.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_italian.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_japanese.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_korean.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_portuguese.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_russian.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_spanish.puml
+docs/puml/C4-PlantUML/themes/puml-theme-C4Language_ukrainian.puml
+
