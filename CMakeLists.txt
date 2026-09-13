@@ -16,6 +16,8 @@ include(CMakePrintHelpers)
 # ------------------------------------------------------------------------------------------------
 
 set(EVILAUDIO_CMAKE_MODULE_DIR "${CMAKE_SOURCE_DIR}/extras/cmake")
+# Load the command dispatcher before project() so configure-time commands can
+# run before the rest of the project is evaluated.
 include("${EVILAUDIO_CMAKE_MODULE_DIR}/EvilAudioCommandHandlers.cmake")
 
 # ------------------------------------------------------------------------------------------------
@@ -47,6 +49,8 @@ option(EVILAUDIO_MSVC_ENABLE_MULTIPROCESSOR
 # =================================================================================
 # Optional configure-time command dispatcher.
 # Example: cmake -S . -B build -DEVIL_AUDIO_COMMAND=configure
+# Read the cache value once, then remove it so the command does not run again
+# on a later reconfigure unless the user explicitly requests it.
 
 set(EVIL_AUDIO_COMMAND "none")
 if(DEFINED CACHE{EVIL_AUDIO_COMMAND})
@@ -57,6 +61,8 @@ evilaudio_handle_configure_time_command("${EVIL_AUDIO_COMMAND}")
 
 # =================================================================================
 
+# Establish the project and the language/toolchain settings shared by all
+# targets created by the subdirectories below.
 # Project definition
 project(EvilAudio VERSION 0.1.0 LANGUAGES C CXX)
 
@@ -80,6 +86,9 @@ enable_testing()
 
 # ------------------------------------------------------------------------------------------------
 
+# These modules provide the project-specific functions used during
+# configuration: logging, dependency detection, test setup, documentation,
+# and general CMake utilities.
 
 
 include("${EVILAUDIO_CMAKE_MODULE_DIR}/EvilAudioLogging.cmake")
@@ -102,6 +111,8 @@ evil_audio_add_vscode_plantuml_include(
     VENV_PATH "${CMAKE_SOURCE_DIR}/.venv"
 )
 
+# Documentation generation uses a project-local Python environment so its
+# tools and versions are reproducible across developer machines.
 # ------------------------------------------------------------------------------------------------
 # Install or upgrade the Python virtual environment used for 
 # documentation generation and other Python-based tooling.
@@ -129,6 +140,8 @@ decrement_log_indent()
 
 # ------------------------------------------------------------------------------------------------
 
+# Configure compiler-specific options and discover optional audio SDKs before
+# defining targets that may depend on them.
 set(EVILAUDIO_MSVC_MAX_PARALLEL_COMPILE 2 CACHE STRING
     "Optional processor cap for MSVC /MP<n>. Leave empty to let MSVC choose automatically")
 # Path to JUCE examples
@@ -145,6 +158,8 @@ evil_detect_asio_sdk()
 #evil_audio_configure_doxygen_exclude_paths()
 
 # ------------------------------------------------------------------------------------------------
+# Process dependencies first, then project targets, and finally documentation
+# targets. Each directory adds its own libraries, applications, tests, or docs.
 add_subdirectory(external)
 add_subdirectory(source)
 

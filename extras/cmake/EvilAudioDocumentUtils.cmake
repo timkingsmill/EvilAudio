@@ -2,7 +2,18 @@ include_guard(GLOBAL)
 
 # =================================================================================================
 
-# Runs hpp2plantuml through the selected Python interpreter.
+#' @brief Runs hpp2plantuml through the selected Python interpreter.
+#'
+#' @param INPUT_GLOB Input header glob passed to hpp2plantuml.
+#' @param OUTPUT_FILE Output PlantUML file to generate.
+#' @param WORKING_DIRECTORY Optional directory from which hpp2plantuml runs.
+#' @param PYTHON_EXECUTABLE Optional Python interpreter to use.
+#' @param VENV_PATH Optional virtual environment containing the interpreter.
+#' @param EXTRA_ARGS Optional additional arguments passed to hpp2plantuml.
+#' @param FAIL_ON_ERROR If set, stop configuration when hpp2plantuml fails.
+#' @param QUIET If set, suppress status messages.
+#'
+#' Runs hpp2plantuml through the selected Python interpreter.
 #
 # Usage:
 #   evil_audio_run_hpp2plantuml(
@@ -92,7 +103,17 @@ endfunction()
 
 # =================================================================================================
 
-# Resolves a Python interpreter, preferring virtual environments when available.
+#' @brief Resolves a Python interpreter, preferring virtual environments.
+#'
+#' @param out_python Variable receiving the resolved interpreter path.
+#' @param out_python_source Variable receiving the source of the interpreter.
+#' @param PYTHON_EXECUTABLE Optional explicit Python interpreter path.
+#' @param VENV_PATH Optional virtual environment path to search.
+#' @param CALLER Optional caller name used in error messages.
+#'
+#' @details Resolution order is the explicit interpreter, a virtual
+#' environment, the project .venv, and finally find_package(Python3).
+#' Raises a fatal error when no interpreter can be found.
 function(_evil_audio_resolve_python_interpreter out_python out_python_source)
 	set(options)
 	set(oneValueArgs PYTHON_EXECUTABLE VENV_PATH CALLER)
@@ -155,7 +176,15 @@ endfunction()
 
 # =================================================================================================
 
-# Ensures the Python package hpp2plantuml is installed.
+#' @brief Ensures the Python package hpp2plantuml is installed.
+#'
+#' @param PYTHON_EXECUTABLE Optional Python interpreter used for pip.
+#' @param VENV_PATH Optional virtual environment in which to install the package.
+#' @param QUIET If set, suppress status messages.
+#'
+#' @details If VENV_PATH is provided, delegates installation to the virtual
+#' environment prerequisite helper. Otherwise, checks and installs the package
+#' with the resolved Python interpreter. Raises a fatal error if installation fails.
 #
 # Usage:
 #   evil_audio_ensure_hpp2plantuml_installed()
@@ -227,13 +256,22 @@ function(evil_audio_ensure_hpp2plantuml_installed)
 	endif()
 endfunction()
 
-# Backward-compatible alias for older internal call sites.
+#' @brief Backward-compatible alias for the package installation function.
+#'
+#' @param ARGN Arguments forwarded to evil_audio_ensure_hpp2plantuml_installed.
 function(_evil_audio_ensure_hpp2plantuml_installed)
 	evil_audio_ensure_hpp2plantuml_installed(${ARGN})
 endfunction()
 
 # =================================================================================================
 
+#' @brief Recursively finds PlantUML files in the specified directories.
+#'
+#' @param out_files Variable receiving the list of discovered .puml files.
+#' @param SOURCE_DIR_LIST One or more directories to search recursively.
+#'
+#' @details Raises a fatal error if SOURCE_DIR_LIST is empty or contains a path
+#' that is not an existing directory.
 function(evil_audio_get_all_puml_files_in_directory out_files)
     set(options)
     set(oneValueArgs)

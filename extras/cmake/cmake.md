@@ -4,6 +4,11 @@
 
 CMake is a meta-build system that generates platform-specific build files (like Visual Studio solutions, Makefiles, or Ninja build files) from a declarative configuration. The EvilAudio project uses CMake to manage its build process across different platforms and compilers.
 
+
+
+See the [CMake target linking cheat sheet](CMakeCheatSheet.md) for a quick reference to common linking patterns.
+See the [CMake files guide](cmakefiles.md) for an explanation of the reusable CMake modules in `extras/cmake`.
+
 ## The CMake Build Workflow
 
 The CMake build process consists of several distinct phases:

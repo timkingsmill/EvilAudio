@@ -6,6 +6,8 @@
 
 EvilAudio is a powerful audio processing library for Python that provides a wide range of tools and functionalities for working with audio data. It aims to make audio manipulation and analysis easy and efficient for developers and researchers alike.
 
+See the [CMake documentation](./extras/cmake/cmake.md) for build-system details.
+
 ## PlantUML Theme Include
 
 Use the shared PlantUML theme include for all repository diagrams to keep styling consistent.

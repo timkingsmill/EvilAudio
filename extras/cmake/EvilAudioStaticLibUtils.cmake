@@ -7,14 +7,16 @@ set(EVIL_STATIC_LIBS_BLACKLIST
 )
 
 # =============================================================================
-# Module path <source_path> is the full path to the module directory 
-# (e.g. /path/to/JUCE/modules/juce_core). 
-# The module header file is expected to be in the format 
-# "juce_<module>.h" (e.g. juce_core.h) and expected to be located in the 
-# module directory. 
-#
+
+## @brief Creates a static library target for a JUCE module.
+##
+## @param source_path Full path to the JUCE module directory.
+## @details The module must contain a header matching the module directory
+## name, such as juce_core/juce_core.h. Blacklisted modules are skipped.
+## Dependencies are read from module metadata and linked to the target.
+## @throws FATAL_ERROR if source_path or its module header is invalid.
 function(evil_add_static_lib source_path)
-    # Validate the source path and check for the module header file    
+    # Validate the source path and locate the module header.
     _evil_validate_library_sources_path(${source_path} IsValid module_header_file)
     if(NOT IsValid)
         message(FATAL_ERROR "Invalid source path for static library: ${module_header_file}")
@@ -23,13 +25,7 @@ function(evil_add_static_lib source_path)
     get_filename_component(module_name ${source_path} NAME)
     message(STATUS "Adding static library for JUCE module: ${module_name}")
 
-    # Derive the library target name from the module header file name.
-    # Note: The library target name is derived from the module header file name, 
-    # which is expected to be in the format "juce_<module>.h". The "juce" prefix 
-    # is replaced with "evil" to create a unique target name for our static library. 
-    # This allows us to link against the JUCE modules without installing JUCE itself, and it 
-    # also helps to avoid naming conflicts with any existing JUCE targets if JUCE were to be 
-    # included as a submodule in the future.
+    # Derive the target name from the module header file.
     get_filename_component(lib_target_name ${module_header_file} NAME_WE)  
 
     if(lib_target_name IN_LIST EVIL_STATIC_LIBS_BLACKLIST)
@@ -45,22 +41,14 @@ function(evil_add_static_lib source_path)
 
     _evil_get_library_sources(${source_path} source_files header_files)
     
-    #target_sources(${lib_target_name} PRIVATE ${header_files})
+    # Header sources are intentionally not added separately.
     target_sources(${lib_target_name} 
         PRIVATE 
             ${source_files} 
         PUBLIC
             ${module_header_file})
 
-    # Set the include directories for this target.
-    # Note: The `include` directory is added as a private include directory, 
-    # which means that it will only be used when compiling the source files of this target. 
-    # This is a common practice to keep the public interface of the library clean and avoid
-    # exposing internal implementation details to other targets that might link against this library.
-
-    
-    # The include path is set to the module directory itself, which allows 
-    # the source files of this module to include the headers using the correct path.
+    # Expose the parent and module directories for module and dependency headers.
     get_filename_component(_all_libraries_folder_name ${source_path} DIRECTORY)  
 
     target_include_directories(${lib_target_name}      
@@ -70,10 +58,7 @@ function(evil_add_static_lib source_path)
             ${source_path}
     )
     
-    # Get the list of public header files for this library target. This is used to 
-    # set the PUBLIC_HEADER property of the target, which allows CMake to know which header files 
-    # are part of the public interface of the library. This is important for generating export 
-    # headers and for other targets that might link against this library to know which headers they can include.
+    # Public-header installation is currently disabled.
 
     #[[
         if(NOT "${header_files}" STREQUAL "")
@@ -82,7 +67,7 @@ function(evil_add_static_lib source_path)
         endif()
         ]]
 
-    # Define preprocessor definitions for this target.
+    # Define JUCE module and project-wide compile definitions.
     target_compile_definitions(${lib_target_name}
         PUBLIC 
             JUCE_MODULE_AVAILABLE_${module_name}=1
@@ -90,12 +75,12 @@ function(evil_add_static_lib source_path)
         PUBLIC
             JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=0
             DONT_SET_USING_JUCE_NAMESPACE=1
-            # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
-            JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_gui_app` call
-            JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
+            # Enable these features explicitly only when the consuming app requires them.
+            JUCE_WEB_BROWSER=0
+            JUCE_USE_CURL=0
     )
 
-    # Set platform-specific compile options and definitions based on the module name and the current system.
+    # Apply Windows- and MSVC-specific options where required.
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         if((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") OR (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
 
@@ -134,17 +119,10 @@ function(evil_add_static_lib source_path)
             
             if(lib_target_name MATCHES "juce_audio_devices_lib")
                 if(JUCE_ASIO_SUPPORT)
-                    # Note: The ASIO SDK is expected to be located in 
-                    # the "source/libs/asiosdk/common" directory.
+                    # The ASIO SDK is expected in source/libs/asiosdk/common.
                     message(STATUS "Enabling ASIO support for ${lib_target_name}")
                     message(STATUS "ASIO_SDK_DIR is set to: ${ASIO_SDK_DIR}")
 
-                    # Should this be public or private? If it's public, then any target 
-                    #that links against this library will also get these definitions 
-                    # and include directories, which might be necessary if they need to 
-                    # use ASIO functionality directly. If it's private, then only the 
-                    # source files of this library will have access to these definitions and include directories.
-                    
                     target_compile_definitions(${lib_target_name} PUBLIC JUCE_ASIO=1)
                     target_include_directories(${lib_target_name} PUBLIC "${ASIO_SDK_DIR}")
                 endif()
@@ -154,9 +132,7 @@ function(evil_add_static_lib source_path)
         endif()
     endif()
 
-    # Get list of dependencies for this library target. This is used to set the target_link_libraries for 
-    # this target, which allows CMake to know which other targets this library depends on. 
-    # This is important for ensuring that the correct libraries are linked when building the application that uses this library.
+    # Read module dependencies and link them to the generated target.
     set(metadata_dict)
     _evil_extract_metadata_block(JUCE_MODULE_DECLARATION "${module_header_file}" metadata_dict)
     _evil_get_metadata_value("${metadata_dict}" "dependencies" dependencies)
@@ -166,18 +142,14 @@ function(evil_add_static_lib source_path)
         set(dependency_target_name ${dependency_lowercase}_lib)
         message(STATUS "Adding link library dependency: ${dependency_target_name}")
         target_link_libraries(${lib_target_name} PRIVATE ${dependency_target_name})
-        # Create the include directory for this dependency and add it to the include directories for this target. 
-        # This allows the source files of this target to include the headers of the dependency using the correct path.
+        # Add the dependency's module directory to the include path.
         get_filename_component(_modules_path ${source_path} DIRECTORY)  
         set(dependency_include_dir ${_modules_path}/${dependency})
         message(STATUS "Adding include directory for dependency ${dependency_target_name}: ${dependency_include_dir}")
         target_include_directories(${lib_target_name} PUBLIC ${dependency_include_dir})
     endforeach()
 
-    # Print the properties of the target for debugging purposes. 
-    # This is useful to verify that the target has been configured correctly 
-    # with the expected sources, include directories, compile definitions, and linked libraries.
-
+    # Uncomment to inspect the generated target properties while debugging.
     #print_target_properties(${lib_target_name})
     
     reset_log_indent()
@@ -188,12 +160,13 @@ endfunction()
 
 # =============================================================================
 
-# This function validates the provided source path for a library and checks for 
-# the existence of the module header file.
-# It checks if the path exists and is a directory, and then looks for a 
-# header file that matches the expected naming convention (e.g., "juce_<module>.h"). 
-# If the path is valid and the module header file is found, it sets the output 
-# variables accordingly; otherwise, it reports errors or warnings.
+## @brief Validates a library source path and locates its module header.
+##
+## @param source_path Library source directory to validate.
+## @param IsValid Variable receiving TRUE when the path and header are valid.
+## @param module_header_file Variable receiving the module header path.
+## @details The expected header name is derived from the source directory.
+## A missing directory is fatal; a missing header emits a warning.
 function(_evil_validate_library_sources_path source_path IsValid module_header_file)
     if(NOT EXISTS ${source_path})
         message(FATAL_ERROR "Directory does not exist: ${source_path}")
@@ -202,15 +175,15 @@ function(_evil_validate_library_sources_path source_path IsValid module_header_f
         message(FATAL_ERROR "Path is not a directory: ${source_path}")
         set(${IsValid} FALSE PARENT_SCOPE)
     else()
-        #message(STATUS "Path is a valid directory: ${source_path}")
+        # Uncomment to log valid source directories during debugging.
         set(${IsValid} TRUE PARENT_SCOPE)
     endif()
 
-    # Get the directory name from source path
+    # Derive the expected module header name from the directory name.
     get_filename_component(module_name ${source_path} NAME)  
     set(module_header ${source_path}/${module_name}.h)
 
-    # Check for the existence of the module header file
+    # Validate the expected module header.
     if(NOT EXISTS ${module_header})
         message(WARNING "Module header file not found: ${module_header}")
         set(${IsValid} FALSE PARENT_SCOPE)
@@ -224,20 +197,24 @@ endfunction()
 
 # =============================================================================
 
+## @brief Collects buildable source files from a library source directory.
+##
+## @param source_path Library source directory to scan recursively.
+## @param source_files Variable receiving the absolute source file paths.
+## @param header_files Reserved output variable for header files.
+## @details Files are filtered by module naming conventions and platform.
 function(_evil_get_library_sources source_path source_files header_files)
-    # Clear the source files and header lists before populating them 
-    # to ensure we don't have duplicates from previous calls.
+    # Clear output lists before populating them.
     set(source_files)
     set(header_files)
 
-    # Use GLOB_RECURSE to find all potential source and header files in the directory.
+    # Discover candidate source and header files recursively.
     file(GLOB_RECURSE potential_files RELATIVE ${source_path} ${source_path}/*.cpp ${source_path}/*.c ${source_path}/*.h)
 
-    # Get the library name from source path to use for filtering source files.
-    get_filename_component(library_name ${source_path} NAME)  
+    # Derive the module name used by the source-file filter.
+    get_filename_component(library_name ${source_path} NAME)
     
-    # Filter the potential source files to include only those that match the expected 
-    # naming convention for source files in JUCE modules.
+    # Keep source files that follow the JUCE module naming convention.
     set(potential_source_files ${potential_files})
     list(FILTER potential_source_files INCLUDE REGEX "^${library_name}[^/]*\\.(c|cc|cpp|cxx|s|asm)$")
 
@@ -251,19 +228,17 @@ function(_evil_get_library_sources source_path source_files header_files)
     endforeach()
 
     #[[
-    # The remaining potential files that were not classified as 
-    # source files are considered potential header files.
+    # Disabled: collect header files for a future PUBLIC_HEADER configuration.
     set(potential_header_files ${potential_files})
     
-    # Remove any source files from the potential header files list to 
-    # ensure we only have header files in that list.
+    # Remove source files so only headers remain.
     if(NOT "${source_files}" STREQUAL "")
-        #message (STATUS "Filtering header files for library: ${library_name}")
+        # Uncomment to log header filtering during debugging.
         list(REMOVE_ITEM potential_header_files ${source_files})
     endif()
 
     foreach(header ${potential_header_files})
-        #message(STATUS "Found header file: ${header}")
+        # Uncomment to log each discovered header during debugging.
         list(APPEND header_files ${header})
     endforeach()
     ]]
@@ -274,11 +249,12 @@ endfunction()
 
 # =============================================================================
 
-# This function checks if a given source file should be included in the library build 
-# based on its filename and the current system.
-# The function looks for specific suffixes in the filename (e.g., "_android", "_ios", etc.) that 
-# indicate the file is intended for a specific platform. If the suffix matches the current system, 
-# the file is included; otherwise, it is excluded from the build.
+## @brief Determines whether a source file applies to the current platform.
+##
+## @param filename Source file name to inspect.
+## @param should_build Variable receiving TRUE when the file should be built.
+## @details Recognized suffixes include _android, _ios, _linux, _mac, _osx,
+## and _windows. A recognized suffix for another platform excludes the file.
 function(_evil_should_build_library_file filename should_build)
     get_filename_component(trimmed_filename "${filename}" NAME_WE)
     string(TOLOWER "${trimmed_filename}" trimmed_filename_lowercase)
@@ -307,6 +283,12 @@ endfunction()
 
 # =============================================================================
 
+## @brief Extracts a named metadata block from a module header.
+##
+## @param BLOCKID Metadata block identifier.
+## @param file_with_block File containing the metadata block markers.
+## @param metadata_dict Variable receiving key=[value1;value2] records.
+## @throws FATAL_ERROR if file_with_block does not exist.
 function(_evil_extract_metadata_block BLOCKID file_with_block metadata_dict)
 
     if(NOT EXISTS ${file_with_block})
@@ -318,22 +300,21 @@ function(_evil_extract_metadata_block BLOCKID file_with_block metadata_dict)
     
     increment_log_indent()
 
-    # Clear the metadata dictionary list before populating it 
-    # to ensure we don't have duplicates from previous calls.
+    # Clear parser state before reading the metadata block.
     set(metadata_dict)
     set(append NO)
     set(metadata_key)
 
     set(result_dict)
-    # Read the file contents into a list of lines
+    # Read the file as a list of lines.
     file(STRINGS ${file_with_block} module_header_contents)
 
 
     foreach(line IN LISTS module_header_contents)
-        #message(STATUS "Read line: ${line}")
+        # Uncomment to log every parsed line during debugging.
         if(NOT append)
             if(line MATCHES "[\t ]*BEGIN_${BLOCKID}[\t ]*")
-                #message(STATUS "Found BEGIN_${BLOCKID}")
+                # Uncomment to log the start marker during debugging.
                 increment_log_indent()
                 set(append YES)
             endif()
@@ -342,26 +323,22 @@ function(_evil_extract_metadata_block BLOCKID file_with_block metadata_dict)
 
         if(append AND (line MATCHES "[\t ]*END_${BLOCKID}[\t ]*"))
             decrement_log_indent()
-            #message(STATUS "Found END_${BLOCKID}")
+            # Uncomment to log the end marker during debugging.
             break()
         endif()
         
         if(line MATCHES "^[\t ]*([a-zA-Z]+):")
-            #message(STATUS "Found metadata key: ${CMAKE_MATCH_1}")
             set(metadata_key "${CMAKE_MATCH_1}")
         endif()
 
-        # Remove the key and any leading whitespace from the line to get the value, 
-        # and then split the value by commas into a list.
+        # Remove the key and split the remaining value into a list.
         string(REGEX REPLACE "^[\t ]*${metadata_key}:[\t ]*" "" line "${line}")
         string(REGEX REPLACE "[\t ,]+" ";" metadata_value "${line}")
         
-        # Skip empty values to avoid adding empty entries to the metadata dictionary.
+        # Ignore empty values.
         if (metadata_value STREQUAL "")
             continue()
         endif()
-
-        #message(STATUS "Extracted metadata - Key: [${metadata_key}] Value: [${metadata_value}]")
 
         LIST(APPEND result_dict "${metadata_key}=[${metadata_value}]")
         set(metadata_dict [${result_dict}] PARENT_SCOPE)
@@ -372,27 +349,22 @@ endfunction()
 
 # =============================================================================
 
-# This function retrieves a specific metadata value from the metadata 
-# dictionary list based on the provided key.
-# The metadata dictionary is expected to be a list of strings 
-# in the format "key=[value1;value2;...]".
+## @brief Retrieves one value from a metadata dictionary.
+##
+## @param metadata_dict Metadata records in key=[value1;value2] format.
+## @param key Metadata key to find.
+## @param out_value Variable receiving the value associated with key.
+## @details If the key is not found, out_value remains unchanged.
 function(_evil_get_metadata_value metadata_dict key out_value)
     message(STATUS "Fetching metadata for key [${key}]")
     increment_log_indent()
  
     foreach(record ${metadata_dict})
 
-        # Remove the square brackets from the record to simplify parsing. 
-        # The record is expected to be in the format "key=[value1;value2;...]". 
-        # By removing the square brackets, we can easily split the string 
-        # into key and value parts using a regular expression.
+        # Remove the outer brackets before splitting the record into pairs.
         string(REGEX REPLACE "^\\[(.*)\\]$" "\\1" record "${record}")
         foreach(pair ${record})
-            # Use a regular expression to split the record into key and value parts. 
-            # The regular expression looks for a pattern where there is a key followed 
-            # by an equals sign and then a value. 
-            # The key is captured in the first group (CMAKE_MATCH_1) and the 
-            # value is captured in the second group (CMAKE_MATCH_2).
+            # Split each pair into its key and value.
             string(REGEX MATCH "([^=]+)=(.*)" _ "${pair}")
             set(current_key "${CMAKE_MATCH_1}")
             set(current_value "${CMAKE_MATCH_2}")
