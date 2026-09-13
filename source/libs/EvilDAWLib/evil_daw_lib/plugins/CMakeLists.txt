@@ -1,0 +1,16 @@
+target_sources(${PROJECT_NAME}
+    PUBLIC
+    PRIVATE
+        edaw_plugin_graph.cpp
+        edaw_plugin_graph.h
+        edaw_plugin_scanner_subprocess.cpp
+        edaw_plugin_scanner_subprocess.h
+        edaw_plugin_scanner.cpp
+        edaw_plugin_scanner.h
+        edaw_plugins_list_component.cpp
+        edaw_plugins_list_component.h
+        edaw_plugins_list_window.cpp
+        edaw_plugins_list_window.h
+        edaw_internal_plugins.h
+        edaw_internal_plugins.cpp
+)

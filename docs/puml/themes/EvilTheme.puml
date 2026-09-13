@@ -1,0 +1,79 @@
+@startuml EvilTheme
+' Base rendering defaults
+skinparam shadowing false
+skinparam dpi 96
+skinparam linetype ortho
+
+' Lifelines of sequence diagrams
+'skinparam LifeLineBorderThickness 2
+
+' Canvas and text
+skinparam BackgroundColor #FFFFFF
+skinparam DefaultFontName Segoe UI
+skinparam DefaultFontSize 10
+skinparam DefaultTextAlignment left
+skinparam HyperlinkColor #1E5AA8
+
+' Global line and arrow styling
+skinparam ArrowColor #505A66
+skinparam ArrowThickness 1
+
+' Package/group containers
+skinparam packageStyle rectangle
+skinparam Package {
+	BorderColor #3A4653
+	BackgroundColor #F7FAFC
+	FontColor #1E2A36
+	FontSize 10
+}
+
+' Class-like elements
+skinparam Class {
+	BorderColor #2E4053
+	BackgroundColor #FCFEFF
+	FontColor #1E2A36
+	AttributeFontColor #31414F
+	StereotypeFontColor #4B5A68
+	ArrowColor #505A66
+}
+
+skinparam Interface {
+	BorderColor #2E4053
+	BackgroundColor #F4FAFF
+	FontColor #1E2A36
+}
+
+skinparam AbstractClass {
+	BorderColor #2E4053
+	BackgroundColor #F5F7FB
+	FontColor #1E2A36
+}
+
+skinparam Enum {
+	BorderColor #2E4053
+	BackgroundColor #FFF9F1
+	FontColor #1E2A36
+}
+
+' Supporting annotations
+skinparam Note {
+	BorderColor #B79654
+	BackgroundColor #FFF7E8
+	FontColor #4C3A1D
+}
+
+skinparam Legend {
+	BorderColor #8492A0
+	BackgroundColor #F8FBFF
+	FontColor #1E2A36
+}
+
+' Titles and captions
+skinparam TitleFontColor #122033
+skinparam TitleFontSize 10
+skinparam CaptionFontColor #425466
+
+' Keep generated diagrams tidy by default
+hide empty members
+
+@enduml

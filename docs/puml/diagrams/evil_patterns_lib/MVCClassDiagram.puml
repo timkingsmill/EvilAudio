@@ -1,0 +1,132 @@
+@startuml mvc_class_diagram
+
+!include EvilBlueTheme.puml
+
+
+skinparam classAttributeIconSize 0
+top to bottom direction
+
+package "evil::mvc" {
+
+  ' ─── Validation ───────────────────────────────────────────────────────────
+
+  class ValidationResult <<struct>> {
+    +success: bool
+    +errors: vector<string>
+  }
+
+  ' ─── Commands ─────────────────────────────────────────────────────────────
+
+  abstract class BaseCommand {
+    +BaseCommand()
+    +~BaseCommand()
+    +execute(): bool
+    +isEnabled() const noexcept: bool
+    +setEnabled(enabled: bool) noexcept
+    +isError() const noexcept: bool
+    +getErrorMessages() const noexcept: const vector<string>&
+    +addErrorMessage(message: string)
+    +clearErrorMessages() noexcept
+    +getName() const noexcept: string_view
+    #getCommandKey() const noexcept: string_view = 0
+    #onExecute(): bool = 0
+    -enabled_: bool
+    -errorMessages_: vector<string>
+  }
+
+  ' ─── Data Model ───────────────────────────────────────────────────────────
+
+  interface "BaseDataModelObserver<TDataModel>" as BaseDataModelObserverT {
+    +~BaseDataModelObserver()
+    +handleDataModelEvent(dataModel: const TDataModel&, dataModelType: type_index) = 0
+  }
+
+  abstract class BaseDataModel {
+    +addObserver(observer: BaseDataModelObserver<BaseDataModel>*)
+    +removeObserver(observer: BaseDataModelObserver<BaseDataModel>*)
+    #notifyObservers()
+    #asBase(): const BaseDataModel&
+    -_observers: vector<BaseDataModelObserver<BaseDataModel>*>
+    -_observersMutex: mutex
+  }
+
+  BaseDataModel o-- BaseDataModelObserverT : _observers (TDataModel = BaseDataModel)
+
+  ' ─── Views ────────────────────────────────────────────────────────────────
+
+  abstract class BaseView {
+    +~BaseView()
+    +onCreateCommand: function<BaseCommand*(type_index, const vector<any>&)>
+    +onCanExecuteCommand: function<bool(const BaseCommand&)>
+    +onExecuteCommand: function<ValidationResult(const BaseCommand&)>
+    +onInit: function<bool(const BaseView&)>
+    +onShow: function<bool(const BaseView&)>
+    +onHide: function<bool(const BaseView&)>
+    +onDestroy: function<bool(const BaseView&)>
+    +createCommand(commandType: type_index, args: const vector<any>&) const: BaseCommand*
+    +createCommand(commandType: type_index) const: BaseCommand*
+    +canExecuteCommand(command: const BaseCommand&) const: bool
+    +executeCommand(command: const BaseCommand&) const: ValidationResult
+    +render() const: string = 0
+  }
+
+  BaseView ..> ValidationResult : uses
+  BaseView ..> BaseCommand : uses
+
+  ' ─── View Models ──────────────────────────────────────────────────────────
+
+  class BaseViewModel {
+    +BaseViewModel()
+    #handleDataModelEvent(dataModel: const BaseDataModel&, dataModelType: type_index)
+  }
+
+  class ViewModelFactory {
+    +create(viewType: type_index, args: ArgList = {}): unique_ptr<BaseViewModel>
+    +registerType<T>(factory: FactoryFn)
+    +registerViewType<TView>(factory: FactoryFn)
+    +unregisterType<T>()
+    +unregisterViewType<TView>()
+  }
+
+  BaseViewModel ..|> BaseDataModelObserverT : TDataModel = BaseDataModel
+  ViewModelFactory ..> BaseViewModel : creates
+
+  ' ─── Controllers ──────────────────────────────────────────────────────────
+
+  abstract class BaseController {
+    +~BaseController()
+    +addView(view: const shared_ptr<BaseView>&)
+    +removeView(view: BaseView*)
+    +clearViews()
+    +getViews(): vector<BaseView*>
+    +getDataModel(): BaseDataModel*
+    #setDataModel(dataModel: shared_ptr<BaseDataModel>)
+    #onCreateViewModel(viewType: type_index, args: const vector<any>&): unique_ptr<BaseViewModel>
+    #onCreateViewModel(viewType: type_index): unique_ptr<BaseViewModel>
+    #onViewInit(view: const BaseView&): bool
+    #onViewShow(view: const BaseView&): bool
+    #onViewHide(view: const BaseView&): bool
+    #onViewDestroy(view: const BaseView&): bool
+    #onCreateCommand(commandType: type_index, args: const vector<any>&): BaseCommand*
+    #onCreateCommand(commandType: type_index): BaseCommand*
+    #onCanExecuteCommand(command: const BaseCommand&): bool
+    #onExecuteCommand(command: const BaseCommand&): ValidationResult
+    #attachControllerToView(view: BaseView*)
+    #detachControllerFromView(view: BaseView*)
+    #attachViewModelToDataModel(viewModel: BaseViewModel*)
+    #detachViewModelFromDataModel(viewModel: BaseViewModel*)
+    #pruneExpired(views: vector<shared_ptr<BaseView>>): void {static}
+    -_viewModels: map<BaseView*, unique_ptr<BaseViewModel>>
+    -_dataModelWeak: weak_ptr<BaseDataModel>
+    -_views: vector<shared_ptr<BaseView>>
+  }
+
+  BaseController ..> BaseCommand : creates via\nCommandFactory
+  BaseController ..> ViewModelFactory : creates via
+  BaseController o-- BaseView : _views
+  BaseController o-- BaseViewModel : _viewModels
+  BaseController ..> ValidationResult : returns
+  BaseController --> BaseDataModel : _dataModelWeak
+}
+
+@enduml

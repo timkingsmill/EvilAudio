@@ -1,0 +1,84 @@
+@startuml EvilAudio_LinkedLibrary_Hierarchy
+
+!include EvilBlueTheme.puml
+
+title EvilAudio Active Target Link Hierarchy
+
+left to right direction
+
+legend left
+	--> direct PRIVATE link
+	==> direct PUBLIC link
+endlegend
+
+package "Application" {
+	[EvilDAW (executable)] as EvilDAW
+}
+
+package "Testing" {
+	[EvilAudioTestDriver (executable)] as TestDriver
+	[GTest::gtest_main] as GTestMain
+	[GTest::gtest] as GTest
+}
+
+package "DAW Core" {
+	[EvilDAWLib] as EvilDAWLib
+}
+
+package "Evil Audio Libraries" {
+	[evil_eq_editors_lib] as EqEditors
+	[evil_plugins_lib] as Plugins
+	[evil_patterns_lib] as Patterns
+	[evil_core_lib] as Core
+}
+
+package "JUCE Static Libraries" {
+	[juce_audio_devices_lib] as JuceAudioDevices
+	[juce_audio_formats_lib] as JuceAudioFormats
+	[juce_audio_processors_lib] as JuceAudioProcessors
+	[juce_audio_processors_headless_lib] as JuceAudioProcessorsHeadless
+	[juce_audio_utils_lib] as JuceAudioUtils
+	[juce_core_lib] as JuceCore
+	[juce_data_structures_lib] as JuceDataStructures
+	[juce_dsp_lib] as JuceDSP
+	[juce_graphics_lib] as JuceGraphics
+	[juce_gui_basics_lib] as JuceGuiBasics
+	[juce_gui_extra_lib] as JuceGuiExtra
+	[juce_audio_basics_lib] as JuceAudioBasics
+}
+
+' Application and testing targets
+EvilDAW --> EvilDAWLib
+TestDriver --> GTestMain : PRIVATE
+TestDriver --> GTest : PRIVATE
+TestDriver --> EvilDAWLib : PRIVATE
+TestDriver --> Patterns : PRIVATE
+
+' EvilDAWLib direct links
+EvilDAWLib ==> EqEditors : PUBLIC
+EvilDAWLib ==> Plugins : PUBLIC
+EvilDAWLib ==> Patterns : PUBLIC
+
+EvilDAWLib ==> JuceAudioDevices : PUBLIC
+EvilDAWLib ==> JuceAudioFormats : PUBLIC
+EvilDAWLib ==> JuceAudioProcessors : PUBLIC
+EvilDAWLib ==> JuceAudioProcessorsHeadless : PUBLIC
+EvilDAWLib ==> JuceAudioUtils : PUBLIC
+EvilDAWLib ==> JuceCore : PUBLIC
+EvilDAWLib ==> JuceDataStructures : PUBLIC
+EvilDAWLib ==> JuceDSP : PUBLIC
+EvilDAWLib ==> JuceGraphics : PUBLIC
+EvilDAWLib ==> JuceGuiBasics : PUBLIC
+EvilDAWLib ==> JuceGuiExtra : PUBLIC
+
+' Internal library direct links
+EqEditors --> Core : PRIVATE
+Plugins --> JuceAudioBasics : PRIVATE
+Plugins --> JuceAudioProcessors : PRIVATE
+Plugins --> JuceCore : PRIVATE
+Patterns ==> Core : PUBLIC
+Patterns ==> JuceDataStructures : PUBLIC
+Patterns --> JuceGuiBasics : PRIVATE
+Core ==> JuceCore : PUBLIC
+
+@enduml

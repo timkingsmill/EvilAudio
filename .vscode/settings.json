@@ -1,0 +1,9 @@
+{
+    "cmake.sourceDirectory": "C:/source/EvilAudio/",
+    "plantuml.includes": [
+        "docs/puml/themes"
+    ],
+    "plantuml.includepaths": [
+        "docs/puml/themes"
+    ]
+}

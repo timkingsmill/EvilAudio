@@ -1,0 +1,53 @@
+@startuml exampleMVCClass.puml
+
+!include EvilBlueTheme.puml
+
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "Example MVC" {
+  class User {
+    +requestDetails(userId)
+  }
+
+  class UserController {
+    +requestDetails(userId)
+    -createViewModel(id, firstName, lastName)
+  }
+
+  class UserModel {
+    -id
+    -firstName
+    -lastName
+    -ssn
+    +fetchData(userId)
+  }
+
+  class UserViewModel {
+    -fullName
+    -displayId
+    +setFullName(fullName)
+    +setDisplayId(displayId)
+    +getFullName()
+    +getDisplayId()
+  }
+
+  class UserView {
+    +render(viewModel)
+  }
+
+  User --> UserController : requests details
+  UserController --> UserModel : fetches data
+  UserController --> UserViewModel : creates and populates
+  UserController --> UserView : renders with
+  UserView --> UserViewModel : reads formatted data
+
+  note right of UserController
+    Mapping Logic:
+    - Concatenate Name
+    - Format Display ID
+    - Exclude Sensitive SSN
+  end note
+}
+@enduml

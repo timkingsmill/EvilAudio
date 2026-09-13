@@ -1,0 +1,56 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+namespace evil::mvc {
+  abstract class BaseDataModel
+  abstract class BaseController {
+    +handleRequest(request : std::string) : std::string
+    +getDataModel() : BaseDataModel*
+    +addViewShared(view : std::shared_ptr<BaseView>) : void
+    +removeView(view : BaseView*) : void
+    +getViews() : vector<BaseView*>
+    +clearViews() : void
+    #setDataModelShared(dataModel : std::shared_ptr<BaseDataModel>) : void
+  }
+
+  class WindowController
+
+  abstract class BaseView
+  class BaseWindowView {
+    +BaseWindowView(application : juce::JUCEApplication&, name : juce::String, backgroundColour : juce::Colour, requiredButtons : int)
+    +~BaseWindowView()
+    +render() : std::string
+    +visibilityChanged() : void
+  }
+}
+
+namespace evil::daw {
+  class MainAppDataModel {
+    +MainAppDataModel()
+    +~MainAppDataModel()
+  }
+
+  class MainAppController {
+    +MainAppController()
+    +~MainAppController()
+    -handleRequest(request : std::string) : std::string
+  }
+
+  class MainAppWindow {
+    +MainAppWindow(application : juce::JUCEApplication&, name : juce::String, backgroundColour : juce::Colour, requiredButtons : int)
+    +~MainAppWindow()
+    -closeButtonPressed() : void
+    -handleAsyncUpdate() : void
+    -application_ : juce::JUCEApplication&
+  }
+}
+
+evil::mvc::WindowController --|> evil::mvc::BaseController
+evil::daw::MainAppDataModel --|> evil::mvc::BaseDataModel
+evil::daw::MainAppController --|> evil::mvc::WindowController
+evil::mvc::BaseWindowView --|> evil::mvc::BaseView
+evil::daw::MainAppWindow --|> evil::mvc::BaseWindowView
+
+evil::daw::MainAppController ..> evil::daw::MainAppDataModel : sets/uses model
+evil::daw::MainAppController ..> evil::daw::MainAppWindow : addViewShared(view)
+@enduml

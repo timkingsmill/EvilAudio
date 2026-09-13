@@ -1,0 +1,142 @@
+@startuml MVCSequenceDiagram
+!include EvilBlueTheme.puml
+
+title MVCSequenceDiagram MVC Current Runtime Flow (Sequence)
+autonumber
+
+autoactivate on
+
+actor User
+participant "External Caller\n(app/test code)" as Caller
+participant "BaseView" as View
+participant "BaseController" as Controller
+participant "ViewModelFactory" as VMFactory
+participant "BaseViewModel" as ViewModel
+participant "CommandFactory" as Factory
+participant "BaseCommand" as Command
+participant "BaseDataModel" as Model
+
+== Wiring: addView() ==
+Caller -> Controller ** : new TController()
+Caller -> Model ** : new TDataModel()
+Caller -> View ** : new TView()
+Caller -> Controller : setDataModel(shared_ptr<TDataModel>)
+note right of Controller
+  setDataModel() stores a weak_ptr<BaseDataModel>.
+  If view-models are already registered, it
+  rebinds observers by detaching from the old
+  model and attaching to the new model.
+end note
+Caller -> Controller : addView(shared_ptr<BaseView>)
+Controller -> Controller : pruneExpired(_views)
+Controller -> Controller : onCreateViewModel(typeid(*view))
+Controller -> VMFactory : ViewModelFactory::create(viewType, args)
+VMFactory --> Controller : unique_ptr<BaseViewModel> | nullptr
+note right of Controller
+  If a view-model is created, it is stored in
+  _viewModels[view*] keyed by raw view pointer.
+end note
+Controller -> Controller : attachControllerToView(view)
+note right of Controller
+  Wires view callbacks:
+    view.onInit        → onViewInit()
+    view.onShow        → onViewShow()
+    view.onHide        → onViewHide()
+    view.onDestroy     → onViewDestroy()
+    view.onCreateCommand    → onCreateCommand()
+    view.onCanExecuteCommand → onCanExecuteCommand()
+    view.onExecuteCommand   → onExecuteCommand()
+end note
+Controller -> Controller : attachViewModelToDataModel(viewModel)
+Controller -> Model : addObserver(viewModel*)
+note right of Model
+  Stores raw non-owning observer pointer.
+  Duplicate and null pointers are silently ignored.
+end note
+
+== View Lifecycle Events ==
+View -> View : (triggers onInit)
+View -> Controller : onInit(*this)
+Controller --> View : bool (accepted)
+
+View -> View : (triggers onShow)
+View -> Controller : onShow(*this)
+Controller --> View : bool (accepted)
+
+== User Triggers a Command ==
+User -> View : user interaction
+View -> View : createCommand(type_index, args)
+View -> Controller : onCreateCommand(type_index, args)
+Controller -> Factory : CommandFactory::create(type_index, args)
+note right of Factory
+  Looks up a registered FactoryFn by type_index.
+  Returns nullptr if no factory was registered
+  for that command type.
+end note
+Factory --> Controller : unique_ptr<BaseCommand> | nullptr
+Controller --> View : BaseCommand* (released raw ptr) | nullptr
+
+alt command != nullptr
+  View -> Controller : onCanExecuteCommand(*command)
+  note right of Controller
+    Base implementation returns false.
+    Subclasses override to implement
+    real availability logic.
+  end note
+  Controller --> View : bool
+
+  alt can execute
+    View -> Controller : onExecuteCommand(*command)
+    note right of Controller
+      Base implementation returns default
+      ValidationResult{success=false}.
+      Subclasses override to dispatch to the
+      model or perform other work.
+    end note
+    Controller --> View : ValidationResult
+    note right of View
+      View inspects ValidationResult.success
+      to decide how to update the display.
+    end note
+  else cannot execute
+    View --> User : indicate command unavailable
+  end
+else command == nullptr
+  View --> User : indicate no handler registered
+end
+
+== Model State Change & Observer Notification ==
+note over Model
+  A concrete model mutates state (e.g. setDummyValue()),
+  then calls notifyObservers().
+end note
+Model -> Model : notifyObservers()
+note right of Model
+  Takes a snapshot of _observers.
+  Resolves dataModelType from asBase().
+  Iterates the snapshot and calls
+  handleDataModelEvent(model, dataModelType)
+  on each non-null observer.
+end note
+Model -> ViewModel : handleDataModelEvent(model, dataModelType)
+note right of ViewModel
+  Base implementation is a no-op.
+  Derived view-models override to cast
+  the model and project data for views.
+end note
+
+== Teardown ==
+View -> Controller : onDestroy(*this)
+Controller -> Controller : detachControllerFromView(view*)
+note right of Controller
+  Clears all view callbacks:
+    onInit, onShow, onHide, onDestroy,
+    onCreateCommand, onCanExecuteCommand,
+    onExecuteCommand set to {}.
+end note
+Caller -> Controller : removeView(view*)
+Controller -> Model : removeObserver(viewModel*)
+Controller -> Controller : erase _viewModels[view*]
+Controller -> Controller : prune expired weak_ptrs
+
+@enduml

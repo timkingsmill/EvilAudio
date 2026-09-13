@@ -1,0 +1,98 @@
+@startuml application_mvc_sequence.puml
+
+!include EvilBlueTheme.puml
+
+title MainApp MVC Sequence (Concrete Classes + Base MVC Wiring)
+
+actor "EvilDAWApplication" as App
+actor "User" as User
+
+participant "MainAppController" as C
+participant "MainAppDataModel" as M
+participant "MainAppWindow" as W
+participant "BaseCommand\n(NullCommand)" as Cmd
+
+== 1) Compose MVC Triad ==
+
+App -> M: MainAppDataModel()
+App -> W: MainAppWindow(application, name, colour, buttons)
+App -> C: MainAppController()
+
+App -> C: setDataModelShared(M)
+activate C
+C -> C: cache model pointer/weak_ptr
+C --> App: (void)
+deactivate C
+
+App -> C: addViewShared(W)
+activate C
+C -> C: attachViewCallbacks(W)
+C -> M: addObserver(W)
+C --> App: (void)
+deactivate C
+
+== 2) View Lifecycle Routed Through Controller ==
+
+App -> W: setVisible(true)
+activate W
+W -> W: visibilityChanged()
+
+alt first visible transition
+	W -> C: onInit(*this)
+	activate C
+	C -> C: onViewInit(view)
+	C --> W: true
+	deactivate C
+end
+
+W -> C: onShow(*this)
+activate C
+C -> C: onViewShow(view)
+C --> W: true
+deactivate C
+deactivate W
+
+== 3) Runtime MVC Request/Update Flow ==
+
+User -> W: user action
+W -> C: handleRequest("domain request")
+activate C
+C -> Cmd: onCanExecuteCommand(command)
+activate Cmd
+Cmd --> C: true / false
+deactivate Cmd
+
+alt command enabled
+	C -> Cmd: onExecuteCommand(command)
+	activate Cmd
+	Cmd -> Cmd: execute() → onExecute()
+	Cmd -> M: query/mutate model state
+	activate M
+	M -> W: handleDataModelEvent()
+	W -> W: triggerAsyncUpdate()
+	W -> W: handleAsyncUpdate()
+	deactivate M
+	Cmd --> C: ValidationResult
+	deactivate Cmd
+else command disabled (NullCommand)
+	C -> Cmd: onExecuteCommand(command)
+	activate Cmd
+	Cmd --> C: ValidationResult (no-op)
+	deactivate Cmd
+end
+
+C --> W: response/status
+note right of C
+	Current implementation returns
+	"Not Implemented".
+end note
+deactivate C
+
+== 4) Window Close Path ==
+
+User -> W: closeButtonPressed()
+activate W
+W -> App: systemRequestedQuit()
+deactivate W
+
+@enduml

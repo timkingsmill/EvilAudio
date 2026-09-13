@@ -1,0 +1,106 @@
+@startuml EvilBlueTheme
+' Blue-forward visual theme for EvilAudio diagrams
+scale max 1600 width
+' Base rendering defaults
+skinparam shadowing false
+skinparam dpi 96
+skinparam linetype ortho
+
+' Lifelines of sequence diagrams
+skinparam LifeLineBorderColor #376B9B
+skinparam LifeLineBackgroundColor #EEF6FF
+
+' Canvas and text
+skinparam BackgroundColor #F7FBFF
+skinparam DefaultFontName Segoe UI
+skinparam DefaultFontSize 10
+skinparam DefaultTextAlignment left
+skinparam HyperlinkColor #1E5AA8
+
+' Global line and arrow styling
+skinparam ArrowColor #2E6EA8
+skinparam ArrowThickness 1
+
+' Package/group containers
+skinparam packageStyle rectangle
+skinparam Package {
+	BorderColor #2F6DA5
+	BackgroundColor #EAF4FF
+	FontColor #0F2A45
+	FontSize 10
+}
+
+' Class-like elements
+skinparam Class {
+	BorderColor #2B5E90
+	BackgroundColor #F5FAFF
+	FontColor #12314F
+	AttributeFontColor #1A456C
+	StereotypeFontColor #356A98
+	ArrowColor #2E6EA8
+}
+
+skinparam Interface {
+	BorderColor #2D5E8A
+	BackgroundColor #E8F3FF
+	FontColor #12314F
+}
+
+skinparam AbstractClass {
+	BorderColor #2F648F
+	BackgroundColor #EEF6FF
+	FontColor #12314F
+}
+
+skinparam Enum {
+	BorderColor #2E5B84
+	BackgroundColor #EAF2FB
+	FontColor #12314F
+}
+
+' Sequence participants and activations
+skinparam Participant {
+	BorderColor #2B5E90
+	BackgroundColor #F3F9FF
+	FontColor #12314F
+}
+
+skinparam Actor {
+	BorderColor #2B5E90
+	BackgroundColor #E9F4FF
+	FontColor #12314F
+}
+
+skinparam SequenceLifeLineBorderColor #376B9B
+skinparam SequenceLifeLineBackgroundColor #F3F9FF
+skinparam SequenceGroupBorderColor #3C76AE
+skinparam SequenceGroupBackgroundColor #EAF4FF
+skinparam SequenceGroupHeaderFontColor #12314F
+
+skinparam Activation {
+	BorderColor #3A78B1
+	BackgroundColor #DCEEFF
+}
+
+' Supporting annotations
+skinparam Note {
+	BorderColor #5A85AF
+	BackgroundColor #F2F8FF
+	FontColor #1A3D5F
+}
+
+skinparam Legend {
+	BorderColor #6A8FB3
+	BackgroundColor #F4F9FF
+	FontColor #12314F
+}
+
+' Titles and captions
+skinparam TitleFontColor #0D2740
+skinparam TitleFontSize 10
+skinparam CaptionFontColor #2D567D
+
+' Keep generated diagrams tidy by default
+hide empty members
+
+@enduml

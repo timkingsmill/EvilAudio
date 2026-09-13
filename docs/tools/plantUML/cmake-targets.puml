@@ -1,0 +1,196 @@
+@startuml cmake_targets
+!include ../../puml/themes/EvilTheme.puml
+title EvilAudio CMake Target Dependency Graph
+left to right direction
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  RoundCorner 10
+  BorderColor #2b2b2b
+}
+skinparam stereotype {
+  CBackgroundColor<<executable>> #DFF5E3
+  CBorderColor<<executable>> #2E7D32
+  CBackgroundColor<<static_lib>> #E3F2FD
+  CBorderColor<<static_lib>> #1565C0
+  CBackgroundColor<<interface_lib>> #FFF8E1
+  CBorderColor<<interface_lib>> #F9A825
+  CBackgroundColor<<other>> #F3E5F5
+  CBorderColor<<other>> #6A1B9A
+}
+rectangle "EvilAudioTestDriver" as node0 <<executable>>
+rectangle "EvilDAWLib" as node1 <<static_lib>>
+rectangle "evil_eq_editors_lib" as node2 <<static_lib>>
+rectangle "evil_core_lib" as node3 <<static_lib>>
+rectangle "juce_core_lib" as node4 <<static_lib>>
+rectangle "evil_patterns_lib" as node5 <<static_lib>>
+rectangle "juce_data_structures_lib" as node6 <<static_lib>>
+rectangle "juce_events_lib" as node7 <<static_lib>>
+rectangle "juce_gui_basics_lib" as node8 <<static_lib>>
+rectangle "juce_graphics_lib" as node9 <<static_lib>>
+rectangle "evil_plugins_lib" as node10 <<static_lib>>
+rectangle "juce_audio_basics_lib" as node11 <<static_lib>>
+rectangle "juce_audio_processors_lib" as node12 <<static_lib>>
+rectangle "juce_audio_processors_headless_lib" as node13 <<static_lib>>
+rectangle "juce_gui_extra_lib" as node14 <<static_lib>>
+rectangle "juce_audio_devices_lib" as node15 <<static_lib>>
+rectangle "juce_audio_formats_lib" as node16 <<static_lib>>
+rectangle "juce_audio_utils_lib" as node17 <<static_lib>>
+rectangle "juce_dsp_lib" as node18 <<static_lib>>
+rectangle "gtest" as node19 <<static_lib>>
+rectangle "gtest_main" as node20 <<static_lib>>
+rectangle "EvilDAW" as node21 <<executable>>
+rectangle "gmock" as node22 <<static_lib>>
+rectangle "gmock_main" as node23 <<static_lib>>
+rectangle "juce_analytics" as node24 <<interface_lib>>
+rectangle "juce_gui_basics" as node25 <<interface_lib>>
+rectangle "juce_data_structures" as node26 <<interface_lib>>
+rectangle "juce_events" as node27 <<interface_lib>>
+rectangle "juce_core" as node28 <<interface_lib>>
+rectangle "juce_atomic_wrapper" as node29 <<interface_lib>>
+rectangle "juce_graphics" as node30 <<interface_lib>>
+rectangle "juce_analytics_lib" as node31 <<static_lib>>
+rectangle "juce_animation" as node32 <<interface_lib>>
+rectangle "juce_animation_lib" as node33 <<static_lib>>
+rectangle "juce_ara_headers" as node34 <<interface_lib>>
+rectangle "juce_audio_basics" as node35 <<interface_lib>>
+rectangle "juce_audio_devices" as node36 <<interface_lib>>
+rectangle "juce_audio_formats" as node37 <<interface_lib>>
+rectangle "juce_audio_plugin_client" as node38 <<interface_lib>>
+rectangle "juce_audio_processors" as node39 <<interface_lib>>
+rectangle "juce_audio_processors_headless" as node40 <<interface_lib>>
+rectangle "juce_lilv_headers" as node41 <<interface_lib>>
+rectangle "juce_vst3_headers" as node42 <<interface_lib>>
+rectangle "juce_gui_extra" as node43 <<interface_lib>>
+rectangle "juce_audio_plugin_client_AAX" as node44 <<interface_lib>>
+rectangle "juce_audio_plugin_client_LV2" as node45 <<interface_lib>>
+rectangle "juce_audio_plugin_client_Standalone" as node46 <<interface_lib>>
+rectangle "juce_audio_plugin_client_Unity" as node47 <<interface_lib>>
+rectangle "juce_audio_plugin_client_VST" as node48 <<interface_lib>>
+rectangle "juce_audio_plugin_client_VST3" as node49 <<interface_lib>>
+rectangle "juce_audio_utils" as node50 <<interface_lib>>
+rectangle "juce_box2d" as node51 <<interface_lib>>
+rectangle "juce_box2d_lib" as node52 <<static_lib>>
+rectangle "juce_cryptography" as node53 <<interface_lib>>
+rectangle "juce_cryptography_lib" as node54 <<static_lib>>
+rectangle "juce_dsp" as node55 <<interface_lib>>
+rectangle "juce_javascript" as node56 <<interface_lib>>
+rectangle "juce_javascript_lib" as node57 <<static_lib>>
+rectangle "juce_midi_ci" as node58 <<interface_lib>>
+rectangle "juce_midi_ci_lib" as node59 <<static_lib>>
+rectangle "juce_opengl" as node60 <<interface_lib>>
+rectangle "juce_opengl_lib" as node61 <<static_lib>>
+rectangle "juce_osc" as node62 <<interface_lib>>
+rectangle "juce_osc_lib" as node63 <<static_lib>>
+rectangle "juce_product_unlocking" as node64 <<interface_lib>>
+rectangle "juce_product_unlocking_lib" as node65 <<static_lib>>
+rectangle "juce_recommended_config_flags" as node66 <<interface_lib>>
+rectangle "juce_recommended_lto_flags" as node67 <<interface_lib>>
+rectangle "-LTCG" as node68 <<other>>
+rectangle "juce_recommended_warning_flags" as node69 <<interface_lib>>
+rectangle "juce_video" as node70 <<interface_lib>>
+rectangle "juce_video_lib" as node71 <<static_lib>>
+
+legend right
+|= Type |= Meaning |
+|<back:#DFF5E3>Executable</back>|CMake executable target|
+|<back:#E3F2FD>Static Library</back>|CMake static library target|
+|<back:#FFF8E1>Interface Library</back>|CMake interface library target|
+|<back:#F3E5F5>Other</back>|Custom/unknown target type|
+|Private link|dotted arrow|
+|Interface link|dashed arrow|
+|Other link|solid arrow|
+endlegend
+
+node0 -> node0
+node3 -> node4
+node2 ..> node3
+node1 -> node2
+node5 -> node3
+node7 ..> node4
+node6 ..> node7
+node5 -> node6
+node8 ..> node6
+node9 ..> node7
+node8 ..> node9
+node5 ..> node8
+node1 -> node5
+node11 ..> node4
+node10 ..> node11
+node13 ..> node11
+node13 ..> node7
+node12 ..> node13
+node14 ..> node8
+node12 ..> node14
+node10 ..> node12
+node10 ..> node4
+node1 -> node10
+node15 ..> node11
+node15 ..> node7
+node1 -> node15
+node16 ..> node11
+node1 -> node16
+node1 -> node13
+node1 -> node12
+node17 ..> node15
+node17 ..> node16
+node17 ..> node12
+node1 -> node17
+node1 -> node4
+node1 -> node6
+node18 ..> node16
+node1 -> node18
+node1 -> node9
+node1 -> node8
+node1 -> node14
+node0 ..> node1
+node0 ..> node5
+node0 ..> node19
+node20 -> node19
+node0 ..> node20
+node21 ..> node1
+node28 --> node29
+node27 --> node28
+node26 --> node27
+node25 --> node26
+node30 --> node27
+node25 --> node30
+node24 --> node25
+node31 ..> node8
+node32 --> node25
+node33 ..> node8
+node35 --> node28
+node36 --> node35
+node36 --> node27
+node37 --> node35
+node40 --> node34
+node40 --> node35
+node40 --> node27
+node40 --> node41
+node40 --> node42
+node39 --> node40
+node43 --> node25
+node39 --> node43
+node38 --> node39
+node50 --> node36
+node50 --> node37
+node50 --> node39
+node51 --> node30
+node52 ..> node9
+node53 --> node28
+node54 ..> node4
+node55 --> node37
+node56 --> node28
+node57 ..> node4
+node58 --> node35
+node59 ..> node11
+node60 --> node43
+node61 ..> node14
+node62 --> node27
+node63 ..> node7
+node64 --> node53
+node65 ..> node54
+node67 --> node68
+node70 --> node43
+node71 ..> node14
+@enduml

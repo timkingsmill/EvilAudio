@@ -1,0 +1,41 @@
+@startuml exampleMVCSequence.puml
+
+!include EvilBlueTheme.puml
+
+skinparam style strictuml
+skinparam MaxMessageSize 150
+
+actor User
+participant "UserController" as Controller
+participant "UserModel" as Model
+participant "UserViewModel" as ViewModel
+participant "UserView" as View
+
+User -> Controller : RequestDetails(userId)
+activate Controller
+
+Controller -> Model : FetchData(userId)
+activate Model
+Model --> Controller : { id, firstName, lastName, ssn }
+deactivate Model
+
+note right of Controller
+  **Mapping Logic:**
+  - Concatenate Name
+  - Format Display ID
+  - Exclude Sensitive SSN
+end note
+
+Controller -> ViewModel** : Create
+Controller -> ViewModel : setFullName(firstName + lastName)
+Controller -> ViewModel : setDisplayId("#" + id)
+
+Controller -> View : render(ViewModel)
+activate View
+View -> ViewModel : getFullName()
+View -> ViewModel : getDisplayId()
+View --> User : Display Formatted HTML/UI
+deactivate View
+
+deactivate Controller
+@enduml
